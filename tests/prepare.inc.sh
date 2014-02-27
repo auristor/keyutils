@@ -44,6 +44,7 @@ else
     exit 9
 fi
 
+echo "keyutils version: $KEYUTILSVER"
 KEYUTILSVER=`expr "$KEYUTILSVER" : '.*keyutils-\([0-9.]*\).*'`
 
 . $includes/version.inc.sh
