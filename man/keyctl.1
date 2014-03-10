@@ -90,6 +90,10 @@ keyctl - Key management facility control
 \fBkeyctl\fR purge -s <type> <desc>
 .br
 \fBkeyctl\fR get_persistent <keyring> [<uid>]
+.br
+\fBkeyctl\fR alter <key> <type> <cmd> [<data>]
+.br
+\fBkeyctl\fR palter <key> <type> <cmd>
 .SH DESCRIPTION
 This program is used to control the key management facility in various ways
 using a variety of subcommands.
@@ -744,6 +748,22 @@ will be removed and everything it pins can then be garbage collected.
 .P
 If a UID other than the process's real or effective UIDs is specified, then an
 error will be given if the process does not have the CAP_SETUID capability.
+.P
+(*) \fBAlter a key in a type-dependent fashion\fR
+.P
+\fBkeyctl\fR alter <key> <type> <cmd> [<data>]
+.br
+\fBkeyctl\fR palter <key> <type> <cmd>
+.P
+This command performs a type-dependent alteration of the nominated key.  The
+key to be operated on is supplied as the first regular argument, then the
+expected key type name and then the name of the command.
+.P
+In the \fBalter\fR variant of the command, supplementary data may be passed as
+an additional argument.
+.P
+The \fBpalter\fR variant of the command reads the supplementary data from stdin
+rather than taking it from the command line.
 .P
 .SH ERRORS
 .P

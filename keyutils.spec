@@ -2,7 +2,7 @@
 %define verminor 5.9
 %define version %{vermajor}.%{verminor}
 %define libapivermajor 1
-%define libapiversion %{libapivermajor}.5
+%define libapiversion %{libapivermajor}.6
 
 # % define buildid .local
 

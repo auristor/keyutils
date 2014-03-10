@@ -1053,6 +1053,53 @@ function invalidate_key ()
 
 ###############################################################################
 #
+# Alter a key
+#
+###############################################################################
+function alter_key ()
+{
+    my_exitval=0
+    if [ "x$1" = "x--fail" ]
+    then
+	my_exitval=1
+	shift
+    fi
+
+    echo keyctl alter "$@" >>$OUTPUTFILE
+    keyctl alter "$@" >>$OUTPUTFILE 2>&1
+    if [ $? != $my_exitval ]
+    then
+	failed
+    fi
+}
+
+###############################################################################
+#
+# Alter a key, piping in the data
+#
+###############################################################################
+function palter_key ()
+{
+    my_exitval=0
+    if [ "x$1" = "x--fail" ]
+    then
+	my_exitval=1
+	shift
+    fi
+
+    data="$1"
+    shift
+
+    echo echo -n $data \| keyctl palter "$@" >>$OUTPUTFILE
+    echo -n $data | keyctl palter "$@" >>$OUTPUTFILE 2>&1
+    if [ $? != $my_exitval ]
+    then
+	failed
+    fi
+}
+
+###############################################################################
+#
 # Make sure we sleep at least N seconds
 #
 ###############################################################################

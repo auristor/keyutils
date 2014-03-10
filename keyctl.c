@@ -66,10 +66,13 @@ static nr void act_keyctl_reap(int argc, char *argv[]);
 static nr void act_keyctl_purge(int argc, char *argv[]);
 static nr void act_keyctl_invalidate(int argc, char *argv[]);
 static nr void act_keyctl_get_persistent(int argc, char *argv[]);
+static nr void act_keyctl_alter(int argc, char *argv[]);
+static nr void act_keyctl_palter(int argc, char *argv[]);
 
 const struct command commands[] = {
 	{ act_keyctl___version,	"--version",	"" },
 	{ act_keyctl_add,	"add",		"<type> <desc> <data> <keyring>" },
+	{ act_keyctl_alter,	"alter",	"<key> <type> <cmd> [<data>]" },
 	{ act_keyctl_chgrp,	"chgrp",	"<key> <gid>" },
 	{ act_keyctl_chown,	"chown",	"<key> <uid>" },
 	{ act_keyctl_clear,	"clear",	"<keyring>" },
@@ -83,6 +86,7 @@ const struct command commands[] = {
 	{ act_keyctl_new_session, "new_session",	"" },
 	{ act_keyctl_newring,	"newring",	"<name> <keyring>" },
 	{ act_keyctl_padd,	"padd",		"<type> <desc> <keyring>" },
+	{ act_keyctl_palter,	"palter",	"<key> <type> <cmd>" },
 	{ act_keyctl_pinstantiate, "pinstantiate","<key> <keyring>" },
 	{ act_keyctl_pipe,	"pipe",		"<key>" },
 	{ act_keyctl_prequest2,	"prequest2",	"<type> <desc> [<dest_keyring>]" },
@@ -1623,6 +1627,112 @@ static void act_keyctl_get_persistent(int argc, char *argv[])
 	/* print the resulting key ID */
 	printf("%d\n", ret);
 	exit(0);
+}
+
+/*****************************************************************************/
+/*
+ * Alter a key
+ */
+static void act_keyctl_alter(int argc, char *argv[])
+{
+	key_serial_t key;
+	size_t data_size, tsz, csz;
+	char *command, *data;
+	long ret;
+
+	if (argc < 4 || argc > 5)
+		format();
+
+	tsz = strlen(argv[2]);
+	csz = strlen(argv[3]);
+	if (!tsz || !csz ||
+	    tsz >= 4096 - 1 ||
+	    csz > 4096 - (1 + tsz + 1))
+		goto cmd_limit;
+
+	if (memchr(argv[2], ' ', tsz) != NULL)
+		format();
+
+	if (argc == 5) {
+		data = argv[4];
+		data_size = strlen(argv[4]);
+		if (data_size > 1024 * 1024)
+			goto data_limit;
+	} else {
+		data = NULL;
+		data_size = 0;
+	}
+
+	key = get_key_id(argv[1]);
+
+	command = malloc(4096);
+	if (!command)
+		error("malloc");
+
+	memcpy(command, argv[2], tsz);
+	command[tsz] = ' ';
+	memcpy(command + tsz + 1, argv[3] + 1, csz);
+
+	ret = keyctl_alter(key, command, data, data_size);
+	if (ret < 0)
+		error("keyctl_alter");
+
+	exit(0);
+
+cmd_limit:
+	fprintf(stderr, "Type and command strings are limited to 4KB-1 in total\n");
+	exit(2);
+
+data_limit:
+	fprintf(stderr, "The data is limited to 1MB in total\n");
+	exit(2);
+}
+
+/*****************************************************************************/
+/*
+ * Alter a key with data read from stdin.
+ */
+static void act_keyctl_palter(int argc, char *argv[])
+{
+	key_serial_t key;
+	size_t data_size, tsz, csz;
+	char *command, *data;
+	long ret;
+
+	if (argc != 4)
+		format();
+
+	tsz = strlen(argv[2]);
+	csz = strlen(argv[3]);
+	if (!tsz || !csz ||
+	    tsz >= 4096 - 1 ||
+	    csz > 4096 - (1 + tsz + 1))
+		goto cmd_limit;
+
+	if (memchr(argv[2], ' ', tsz) != NULL)
+		format();
+
+	data = grab_stdin(&data_size);
+
+	key = get_key_id(argv[1]);
+
+	command = malloc(4096);
+	if (!command)
+		error("malloc");
+
+	memcpy(command, argv[2], tsz);
+	command[tsz] = ' ';
+	memcpy(command + tsz + 1, argv[3] + 1, csz);
+
+	ret = keyctl_alter(key, command, data, data_size);
+	if (ret < 0)
+		error("keyctl_alter");
+
+	exit(0);
+
+cmd_limit:
+	fprintf(stderr, "Type and command strings are limited to 4KB-1 in total\n");
+	exit(2);
 }
 
 /*****************************************************************************/

@@ -234,6 +234,14 @@ long keyctl_get_persistent(uid_t uid, key_serial_t id)
 	return keyctl(KEYCTL_GET_PERSISTENT, uid, id);
 }
 
+long keyctl_alter(key_serial_t id,
+		  const char *command,
+		  const void *data,
+		  size_t data_size)
+{
+	return keyctl(KEYCTL_ALTER, id, command, data, data_size);
+}
+
 /*****************************************************************************/
 /*
  * fetch key description into an allocated buffer
