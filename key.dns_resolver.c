@@ -42,6 +42,7 @@
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <arpa/inet.h>
+#include <limits.h>
 #include <resolv.h>
 #include <getopt.h>
 #include <sys/types.h>
