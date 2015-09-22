@@ -21,10 +21,17 @@ else
     expect_error EDQUOT
 fi
 
-# check that an overlong key description fails correctly (>4095 inc NUL)
-marker "CHECK OVERLONG DESC"
-create_keyring --fail a$maxdesc @p
-expect_error EINVAL
+# This doesn't work on MIPS earler than 3.19 because of a kernel bug
+kver=`uname -r`
+kmch=`uname -m`
+if kernel_at_or_later_than 3.19 ||
+	[ "$kmch" != "mips" -a "$kmch" != "mips64" ]
+then
+	# check that an overlong key description fails correctly (>4095 inc NUL)
+	marker "CHECK OVERLONG DESC"
+	create_keyring --fail a$maxdesc @p
+	expect_error EINVAL
+fi
 
 # check that an empty keyring name fails
 marker "CHECK EMPTY KEYRING NAME"

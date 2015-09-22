@@ -45,10 +45,17 @@ expect_error ENOKEY
 search_for_key --fail @s user $maxdesc @p
 expect_error ENOKEY
 
-# check that an overlong key description fails correctly (>4095 inc NUL)
-marker "CHECK OVERLONG DESC"
-search_for_key --fail @s user a$maxdesc
-expect_error EINVAL
+# This doesn't work on MIPS earler than 3.19 because of a kernel bug
+kver=`uname -r`
+kmch=`uname -m`
+if kernel_at_or_later_than 3.19 ||
+	[ "$kmch" != "mips" -a "$kmch" != "mips64" ]
+then
+	# check that an overlong key description fails correctly (>4095 inc NUL)
+	marker "CHECK OVERLONG DESC"
+	search_for_key --fail @s user a$maxdesc
+	expect_error EINVAL
+fi
 
 search_for_key --fail @s user a$maxdesc @p
 expect_error EINVAL

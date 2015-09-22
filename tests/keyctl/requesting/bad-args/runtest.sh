@@ -90,10 +90,17 @@ marker "CHECK MAXLEN DESC"
 request_key --fail user $maxdesc
 expect_error ENOKEY
 
-# check that an overlong key description fails correctly
-marker "CHECK OVERLONG DESC"
-request_key --fail user a$maxdesc
-expect_error EINVAL
+# This doesn't work on MIPS earler than 3.19 because of a kernel bug
+kver=`uname -r`
+kmch=`uname -m`
+if kernel_at_or_later_than 3.19 ||
+	[ "$kmch" != "mips" -a "$kmch" != "mips64" ]
+then
+	# check that an overlong key description fails correctly
+	marker "CHECK OVERLONG DESC"
+	request_key --fail user a$maxdesc
+	expect_error EINVAL
+fi
 
 # check that a max length callout info works correctly
 marker "CHECK MAXLEN CALLOUT"
