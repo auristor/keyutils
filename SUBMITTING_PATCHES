@@ -2,7 +2,7 @@
 			      SUBMITTING PATCHES
 			      ==================
 
-Patches can be sent to the keyrings@linux-nfs.org mailing list or directly to
+Patches can be sent to the keyrings@vger.kernel.org mailing list or directly to
 David Howells <dhowells@redhat.com>, the author, in a private email.
 
 When sending patches to be included in keyutils, please certify that your patch
