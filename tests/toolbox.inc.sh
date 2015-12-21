@@ -29,9 +29,21 @@ maxtypelen=31
 maxtype=`for ((i=0; i<$((maxtypelen)); i++)); do echo -n a; done`
 
 PAGE_SIZE=`getconf PAGESIZE`
-maxdesclen=$((PAGE_SIZE - 1))
-maxdesc=`for ((i=0; i<$((maxdesclen)); i++)); do echo -n a; done`
-maxcall=$maxdesc
+pagelen=$((PAGE_SIZE - 1))
+fullpage=`for ((i=0; i<$((pagelen)); i++)); do echo -n a; done`
+string4095=`for ((i=0; i<4095; i++)); do echo -n a; done`
+
+if kernel_at_or_later_than 3.18
+then
+    maxdesc=$string4095
+elif [ $OSDIST = RHEL ] && kernel_at_or_later_than 2.6.32-589.el6
+then
+    maxdesc=$string4095
+else
+    maxdesc=$fullpage
+fi
+
+maxcall=$fullpage
 
 maxsquota=`grep '^ *0': /proc/key-users | sed s@.*/@@`
 
