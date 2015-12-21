@@ -62,6 +62,7 @@ function version_less_than ()
 		__version_less_than_dot "$a_version" "$b_version"
 	    fi
 	fi
+	__version_less_than_dot "$a_release" "$b_release"
     else
 	__version_less_than_dot "$a_version" "$b_version"
     fi
