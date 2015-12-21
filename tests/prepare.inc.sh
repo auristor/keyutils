@@ -24,13 +24,13 @@ then
     echo -n >$OUTPUTFILE
 fi
 
-case `lsb_release -i | awk '{ print $3}'` in
+case `lsb_release -i -s` in
     Fedora*)		OSDIST=Fedora;;
     RedHatEnterprise*)	OSDIST=RHEL;;
     *)			OSDIST=Unknown;;
 esac
 
-OSRELEASE=`lsb_release -r | awk '{ print $2}'`
+OSRELEASE=`lsb_release -r -s`
 
 KEYUTILSVER=`keyctl --version 2>/dev/null`
 if [ -n "$KEYUTILSVER" ]
