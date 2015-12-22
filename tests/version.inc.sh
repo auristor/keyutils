@@ -161,3 +161,39 @@ function kernel_at_or_later_than ()
 {
     ! kernel_older_than $1
 }
+
+###############################################################################
+#
+# Return true if the kernel being tested is a RHEL-6 kernel and is at or later
+# than the given version.
+#
+###############################################################################
+function rhel6_kernel_at_or_later_than ()
+{
+    case $OSDIST-$OSRELEASE in
+	RHEL-6.*)
+	    ! kernel_older_than $1
+	    ;;
+	*)
+	    false
+	    ;;
+	esac
+}
+
+###############################################################################
+#
+# Return true if the kernel being tested is a RHEL-7 kernel and is at or later
+# than the given version.
+#
+###############################################################################
+function rhel7_kernel_at_or_later_than ()
+{
+    case $OSDIST-$OSRELEASE in
+	RHEL-7.*)
+	    ! kernel_older_than $1
+	    ;;
+	*)
+	    false
+	    ;;
+	esac
+}

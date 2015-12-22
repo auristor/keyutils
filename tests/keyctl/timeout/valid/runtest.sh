@@ -52,7 +52,8 @@ sleep_at_least 2
 # check the key has expired
 marker "CHECK NO READ PAYLOAD"
 print_key --fail $keyid
-if kernel_at_or_later_than 3.8 && kernel_older_than 3.13
+if kernel_at_or_later_than 3.8 && kernel_older_than 3.13 &&
+	! rhel7_kernel_at_or_later_than 3.10.0-42.el7
 then
 	expect_error ENOKEY
 else
@@ -106,7 +107,8 @@ sleep_at_least 1
 # listing the session keyring should fail
 marker "CHECK NO LIST SESSION KEYRING"
 list_keyring --fail $keyringid
-if kernel_at_or_later_than 3.8 && kernel_older_than 3.13
+if kernel_at_or_later_than 3.8 && kernel_older_than 3.13 &&
+	! rhel7_kernel_at_or_later_than 3.10.0-42.el7
 then
 	expect_error ENOKEY
 else
