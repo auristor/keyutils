@@ -217,7 +217,7 @@ clean:
 	$(RM) debugfiles.list debugsources.list
 
 distclean: clean
-	$(RM) -r rpmbuild
+	$(RM) -r rpmbuild $(TARBALL)
 
 ###############################################################################
 #
@@ -226,7 +226,7 @@ distclean: clean
 ###############################################################################
 $(ZTARBALL):
 	git archive --prefix=keyutils-$(VERSION)/ --format tar -o $(TARBALL) HEAD
-	bzip2 -9 $(TARBALL)
+	bzip2 -9 <$(TARBALL) >$(ZTARBALL)
 
 tarball: $(ZTARBALL)
 
@@ -236,9 +236,10 @@ tarball: $(ZTARBALL)
 #
 ###############################################################################
 SRCBALL	:= rpmbuild/SOURCES/$(TARBALL)
+ZSRCBALL := rpmbuild/SOURCES/$(ZTARBALL)
 
 BUILDID	:= .local
-dist	:= $(word 2,$(shell grep "%dist" /etc/rpm/macros.dist))
+dist	:= $(word 2,$(shell grep -r "^%dist" /etc/rpm /usr/lib/rpm))
 release	:= $(word 2,$(shell grep ^Release: $(SPECFILE)))
 release	:= $(subst %{?dist},$(dist),$(release))
 release	:= $(subst %{?buildid},$(BUILDID),$(release))
@@ -246,12 +247,12 @@ rpmver	:= $(VERSION)-$(release)
 SRPM	:= rpmbuild/SRPMS/keyutils-$(rpmver).src.rpm
 
 RPMBUILDDIRS := \
-		--define "_srcrpmdir $(CURDIR)/rpmbuild/SRPMS" \
-		--define "_rpmdir $(CURDIR)/rpmbuild/RPMS" \
-		--define "_sourcedir $(CURDIR)/rpmbuild/SOURCES" \
-		--define "_specdir $(CURDIR)/rpmbuild/SPECS" \
-		--define "_builddir $(CURDIR)/rpmbuild/BUILD" \
-		--define "_buildrootdir $(CURDIR)/rpmbuild/BUILDROOT"
+	--define "_srcrpmdir $(CURDIR)/rpmbuild/SRPMS" \
+	--define "_rpmdir $(CURDIR)/rpmbuild/RPMS" \
+	--define "_sourcedir $(CURDIR)/rpmbuild/SOURCES" \
+	--define "_specdir $(CURDIR)/rpmbuild/SPECS" \
+	--define "_builddir $(CURDIR)/rpmbuild/BUILD" \
+	--define "_buildrootdir $(CURDIR)/rpmbuild/BUILDROOT"
 
 RPMFLAGS := \
 	--define "buildid $(BUILDID)"
@@ -261,8 +262,8 @@ rpm:
 	chmod ug-s rpmbuild
 	mkdir -p rpmbuild/{SPECS,SOURCES,BUILD,BUILDROOT,RPMS,SRPMS}
 	git archive --prefix=keyutils-$(VERSION)/ --format tar -o $(SRCBALL) HEAD
-	bzip2 -9f $(SRCBALL)
-	rpmbuild -ts $(SRCBALL).bz2 --define "_srcrpmdir rpmbuild/SRPMS" $(RPMFLAGS)
+	bzip2 -9 <$(SRCBALL) >$(ZSRCBALL)
+	rpmbuild -ts $(ZSRCBALL) --define "_srcrpmdir rpmbuild/SRPMS" $(RPMFLAGS)
 	rpmbuild --rebuild $(SRPM) $(RPMBUILDDIRS) $(RPMFLAGS)
 
 rpmlint: rpm
