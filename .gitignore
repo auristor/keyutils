@@ -4,7 +4,8 @@
 *.so
 *.a
 *.so.*
-keyctl
-request-key
-key.dns_resolver
-rpmbuild
+/keyctl
+/request-key
+/key.dns_resolver
+/rpmbuild
+test.out
