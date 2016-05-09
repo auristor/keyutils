@@ -1065,6 +1065,28 @@ function invalidate_key ()
 
 ###############################################################################
 #
+# Do a DH computation
+#
+###############################################################################
+function dh_compute ()
+{
+    my_exitval=0
+    if [ "x$1" = "x--fail" ]
+    then
+	my_exitval=1
+	shift
+    fi
+
+    echo keyctl dh_compute $@ >>$OUTPUTFILE
+    keyctl dh_compute $@ >>$OUTPUTFILE 2>&1
+    if [ $? != $my_exitval ]
+    then
+	failed
+    fi
+}
+
+###############################################################################
+#
 # Make sure we sleep at least N seconds
 #
 ###############################################################################
