@@ -90,6 +90,8 @@ keyctl - Key management facility control
 \fBkeyctl\fR purge \-s <type> <desc>
 .br
 \fBkeyctl\fR get_persistent <keyring> [<uid>]
+.br
+\fBkeyctl\fR dh_compute <private> <prime> <base>
 .SH DESCRIPTION
 This program is used to control the key management facility in various ways
 using a variety of subcommands.
@@ -745,6 +747,31 @@ will be removed and everything it pins can then be garbage collected.
 If a UID other than the process's real or effective UIDs is specified, then an
 error will be given if the process does not have the CAP_SETUID capability.
 .P
+(*) \fBCompute a Diffie-Hellman shared secret or public key\fR
+.P
+\fBkeyctl\fR dh_compute <private> <prime> <base>
+.P
+This command computes either a Diffie-Hellman shared secret or the
+public key corresponding to the provided private key using the
+payloads of three keys. The computation is:
+.IP
+base ^ private (mod prime)
+.P
+The three inputs must be user keys with read permission. If the
+provided base key contains the shared generator value, the public key
+will be computed.  If the provided base key contains the remote public
+key value, the shared secret will be computed.
+.P
+The result is printed to stdout as a hex dump.
+.P
+.RS
+testbox>keyctl dh_compute $1 $2 $3
+.br
+8 bytes of data in result:
+.br
+00010203 04050607
+.RE
+.P
 .SH ERRORS
 .P
 There are a number of common errors returned by this program:
@@ -758,6 +785,7 @@ There are a number of common errors returned by this program:
 "Key has expired" - an expired key was accessed.
 .P
 "Permission denied" - permission was denied by a UID/GID/mask combination.
+.P
 
 .SH SEE ALSO
 \fBkeyctl\fR(1), \fBrequest-key.conf\fR(5)
