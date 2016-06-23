@@ -100,11 +100,11 @@ const struct command commands[] = {
 	{ act_keyctl_padd,	"padd",		"<type> <desc> <keyring>" },
 	{ act_keyctl_pinstantiate, "pinstantiate","<key> <keyring>" },
 	{ act_keyctl_pipe,	"pipe",		"<key>" },
-	{ act_keyctl_pkey_query, "pkey_query",	"<key> [k=v]*" },
-	{ act_keyctl_pkey_encrypt, "pkey_encrypt", "<key> <datafile> [k=v]*" },
-	{ act_keyctl_pkey_decrypt, "pkey_decrypt", "<key> <datafile> [k=v]*" },
-	{ act_keyctl_pkey_sign, "pkey_sign",	"<key> <datafile> [k=v]*" },
-	{ act_keyctl_pkey_verify, "pkey_verify", "<key> <datafile> <sigfile> [k=v]*" },
+	{ act_keyctl_pkey_query, "pkey_query",	"<key> <pass> [k=v]*" },
+	{ act_keyctl_pkey_encrypt, "pkey_encrypt", "<key> <pass> <datafile> [k=v]*" },
+	{ act_keyctl_pkey_decrypt, "pkey_decrypt", "<key> <pass> <datafile> [k=v]*" },
+	{ act_keyctl_pkey_sign, "pkey_sign",	"<key> <pass> <datafile> [k=v]*" },
+	{ act_keyctl_pkey_verify, "pkey_verify", "<key> <pass> <datafile> <sigfile> [k=v]*" },
 	{ act_keyctl_prequest2,	"prequest2",	"<type> <desc> [<dest_keyring>]" },
 	{ act_keyctl_print,	"print",	"<key>" },
 	{ act_keyctl_pupdate,	"pupdate",	"<key>" },
@@ -1891,7 +1891,7 @@ static void pkey_parse_info(char **argv, char info[4096])
 static void act_keyctl_pkey_query(int argc, char *argv[])
 {
 	struct keyctl_pkey_query result;
-	key_serial_t key;
+	key_serial_t key, password = 0;
 	char info[4096];
 
 	if (argc < 3)
@@ -1899,8 +1899,9 @@ static void act_keyctl_pkey_query(int argc, char *argv[])
 	pkey_parse_info(argv + 2, info);
 
 	key = get_key_id(argv[1]);
+	password = get_key_id(argv[2]);
 
-	if (keyctl_pkey_query(key, info, &result) < 0)
+	if (keyctl_pkey_query(key, password, info, &result) < 0)
 		error("keyctl_pkey_query");
 
 	printf("key_size=%u\n", result.key_size);
@@ -1921,7 +1922,7 @@ static void act_keyctl_pkey_query(int argc, char *argv[])
 static void act_keyctl_pkey_encrypt(int argc, char *argv[])
 {
 	struct keyctl_pkey_query result;
-	key_serial_t key;
+	key_serial_t key, password;
 	size_t in_len;
 	long out_len;
 	void *in, *out;
@@ -1932,16 +1933,17 @@ static void act_keyctl_pkey_encrypt(int argc, char *argv[])
 	pkey_parse_info(argv + 4, info);
 
 	key = get_key_id(argv[1]);
+	password = get_key_id(argv[2]);
 	in = read_file(argv[3], &in_len);
 
-	if (keyctl_pkey_query(key, info, &result) < 0)
+	if (keyctl_pkey_query(key, password, info, &result) < 0)
 		error("keyctl_pkey_query");
 
 	out = malloc(result.max_dec_size);
 	if (!out)
 		error("malloc");
 
-	out_len = keyctl_pkey_encrypt(key, info,
+	out_len = keyctl_pkey_encrypt(key, password, info,
 				      in, in_len, out, result.max_dec_size);
 	if (out_len < 0)
 		error("keyctl_pkey_encrypt");
@@ -1957,7 +1959,7 @@ static void act_keyctl_pkey_encrypt(int argc, char *argv[])
 static void act_keyctl_pkey_decrypt(int argc, char *argv[])
 {
 	struct keyctl_pkey_query result;
-	key_serial_t key;
+	key_serial_t key, password;
 	size_t in_len;
 	long out_len;
 	void *in, *out;
@@ -1968,16 +1970,17 @@ static void act_keyctl_pkey_decrypt(int argc, char *argv[])
 	pkey_parse_info(argv + 4, info);
 
 	key = get_key_id(argv[1]);
+	password = get_key_id(argv[2]);
 	in = read_file(argv[3], &in_len);
 
-	if (keyctl_pkey_query(key, info, &result) < 0)
+	if (keyctl_pkey_query(key, password, info, &result) < 0)
 		error("keyctl_pkey_query");
 
 	out = malloc(result.max_enc_size);
 	if (!out)
 		error("malloc");
 
-	out_len = keyctl_pkey_decrypt(key, info,
+	out_len = keyctl_pkey_decrypt(key, password, info,
 				      in, in_len, out, result.max_enc_size);
 	if (out_len < 0)
 		error("keyctl_pkey_decrypt");
@@ -1993,7 +1996,7 @@ static void act_keyctl_pkey_decrypt(int argc, char *argv[])
 static void act_keyctl_pkey_sign(int argc, char *argv[])
 {
 	struct keyctl_pkey_query result;
-	key_serial_t key;
+	key_serial_t key, password;
 	size_t in_len;
 	long out_len;
 	void *in, *out;
@@ -2004,16 +2007,17 @@ static void act_keyctl_pkey_sign(int argc, char *argv[])
 	pkey_parse_info(argv + 4, info);
 
 	key = get_key_id(argv[1]);
+	password = get_key_id(argv[2]);
 	in = read_file(argv[3], &in_len);
 
-	if (keyctl_pkey_query(key, info, &result) < 0)
+	if (keyctl_pkey_query(key, password, info, &result) < 0)
 		error("keyctl_pkey_query");
 
 	out = malloc(result.max_sig_size);
 	if (!out)
 		error("malloc");
 
-	out_len = keyctl_pkey_sign(key, info,
+	out_len = keyctl_pkey_sign(key, password, info,
 				   in, in_len, out, result.max_sig_size);
 	if (out_len < 0)
 		error("keyctl_pkey_sign");
@@ -2028,7 +2032,7 @@ static void act_keyctl_pkey_sign(int argc, char *argv[])
  */
 static void act_keyctl_pkey_verify(int argc, char *argv[])
 {
-	key_serial_t key;
+	key_serial_t key, password;
 	size_t data_len, sig_len;
 	void *data, *sig;
 	char info[4096];
@@ -2038,10 +2042,11 @@ static void act_keyctl_pkey_verify(int argc, char *argv[])
 	pkey_parse_info(argv + 5, info);
 
 	key = get_key_id(argv[1]);
+	password = get_key_id(argv[2]);
 	data = read_file(argv[3], &data_len);
 	sig = read_file(argv[4], &sig_len);
 
-	if (keyctl_pkey_verify(key, info,
+	if (keyctl_pkey_verify(key, password, info,
 			       data, data_len, sig, sig_len) < 0)
 		error("keyctl_pkey_verify");
 	exit(0);

@@ -143,7 +143,8 @@ struct keyctl_pkey_params {
 		unsigned int	out_len; /* Output buffer size (encrypt/decrypt/sign) */
 		unsigned int	in2_len; /* Second input data size (verify) */
 	};
-	unsigned int	__spare[7];
+	key_serial_t	password_id;	/* Serial no. of password-containing key to use (or 0) */
+	unsigned int	__spare[6];
 };
 
 /*
@@ -208,22 +209,22 @@ extern long keyctl_dh_compute_kdf(key_serial_t private, key_serial_t prime,
 extern long keyctl_restrict_keyring(key_serial_t keyring, const char *type,
 				    const char *restriction);
 
-extern long keyctl_pkey_query(key_serial_t key_id,
+extern long keyctl_pkey_query(key_serial_t key_id, key_serial_t password_id,
 			      const char *info,
 			      struct keyctl_pkey_query *result);
-extern long keyctl_pkey_encrypt(key_serial_t key_id,
+extern long keyctl_pkey_encrypt(key_serial_t key_id, key_serial_t password_id,
 				const char *info,
 				const void *data, size_t data_len,
 				void *enc, size_t enc_len);
-extern long keyctl_pkey_decrypt(key_serial_t key_id,
+extern long keyctl_pkey_decrypt(key_serial_t key_id, key_serial_t password_id,
 				const char *info,
 				const void *enc, size_t enc_len,
 				void *data, size_t data_len);
-extern long keyctl_pkey_sign(key_serial_t key_id,
+extern long keyctl_pkey_sign(key_serial_t key_id, key_serial_t password_id,
 			     const char *info,
 			     const void *data, size_t data_len,
 			     void *sig, size_t sig_len);
-extern long keyctl_pkey_verify(key_serial_t key_id,
+extern long keyctl_pkey_verify(key_serial_t key_id, key_serial_t password_id,
 			       const char *info,
 			       const void *data, size_t data_len,
 			       const void *sig, size_t sig_len);
