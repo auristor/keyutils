@@ -58,14 +58,16 @@ private+="\x50\x08\x66\xd5\x46\x1c\x5f\xa3\x54\x02\x38\x32\x4a\x29\xf3"
 private+="\x16\xe0\x68\xf3\xba\x17\x37\xd0\x42\xcb\x51\xa8\x97\x1b\xc7"
 private+="\xa2"
 
-public="a4cf1f93 95fce03f d02aaece da1f86bd d8d77b69 29039fcc bd138c98 2483bf9c\n"
-public+="7e4406c1 4f3cea24 6cafb29e 95095d0c 6768f13b 31babb24 6c590d92 6c343e69\n"
-public+="59dbd47f 65982a3b b1baa7a3 05a72054 89b6cd0d 78397962 fc834fc9 3ec0517e\n"
-public+="c218396f 9cff860e 29078aee 6b8598b6 79325014 bb84597d f031e149 edbe1c5a\n"
-public+="2a55fe4e bbc64a52 6da59e71 1c7ae5e0 954ba23b 9d58c423 17d84841 815708c8\n"
-public+="b9059987 48773eac 2244b286 cd118277 48b7ed3a 5af5cc0f 8f254190 5e16f998\n"
-public+="a328e894 acc343f4 66a95281 86cea6a3 93eb4fee f83c0e2e f4a00ce6 fcc9ef81\n"
-public+="cc4624d5 ba659411 d1ba7b5f 14a3e286 d42e6ac8 afa9f846 41cb7cb5 66965725\n"
+read -d '' public <<"EOF"
+a4cf1f93 95fce03f d02aaece da1f86bd d8d77b69 29039fcc bd138c98 2483bf9c
+7e4406c1 4f3cea24 6cafb29e 95095d0c 6768f13b 31babb24 6c590d92 6c343e69
+59dbd47f 65982a3b b1baa7a3 05a72054 89b6cd0d 78397962 fc834fc9 3ec0517e
+c218396f 9cff860e 29078aee 6b8598b6 79325014 bb84597d f031e149 edbe1c5a
+2a55fe4e bbc64a52 6da59e71 1c7ae5e0 954ba23b 9d58c423 17d84841 815708c8
+b9059987 48773eac 2244b286 cd118277 48b7ed3a 5af5cc0f 8f254190 5e16f998
+a328e894 acc343f4 66a95281 86cea6a3 93eb4fee f83c0e2e f4a00ce6 fcc9ef81
+cc4624d5 ba659411 d1ba7b5f 14a3e286 d42e6ac8 afa9f846 41cb7cb5 66965725
+EOF
 
 pcreate_key "-e $prime" user dh:prime @s
 expect_keyid primeid
@@ -78,7 +80,7 @@ expect_keyid privateid
 
 marker "COMPUTE DH PUBLIC KEY"
 dh_compute $privateid $primeid $generatorid
-expect_payload payload $public
+expect_multiline payload "$public"
 
 echo "++++ FINISHED TEST: $result" >>$OUTPUTFILE
 
