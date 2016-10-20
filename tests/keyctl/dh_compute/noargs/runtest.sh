@@ -6,7 +6,7 @@
 
 # ---- do the actual testing ----
 
-if [ $have_key_invalidate = 0 ]
+if [ $have_dh_compute = 0 ]
 then
     toolbox_skip_test $TEST "SKIPPING DUE TO LACK OF DIFFIE-HELLMAN"
     exit 0
