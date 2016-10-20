@@ -672,6 +672,25 @@ function expect_payload ()
 
 ###############################################################################
 #
+# extract multiline output from the log file
+#
+###############################################################################
+function expect_multiline ()
+{
+    my_varname=$1
+    my_linecount="`echo \"$2\" | wc -l`"
+
+    my_payload=$(tail -$my_linecount $OUTPUTFILE)
+    eval $my_varname="\"$my_payload\""
+
+    if [ $# != 2 -o "x$my_payload" != "x$2" ]
+    then
+	failed
+    fi
+}
+
+###############################################################################
+#
 # revoke a key
 #
 ###############################################################################
