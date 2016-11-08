@@ -145,12 +145,13 @@ permit it to access the callers keyrings and instantiate the target key.
 (*) Keyring by name: \fB%:<name>\fR
 .P
 A named keyring.  This will be searched for in the process's keyrings and in
-/proc/keys.
+.IR /proc/keys .
 .P
 (*) Key by name: \fB%<type>:<name>\fR
 .P
 A named key of the given type.  This will be searched for in the process's
-keyrings and in /proc/keys.
+keyrings and in
+.IR /proc/keys .
 .SH COMMAND SYNTAX
 Any non-ambiguous shortening of a command name may be used in lieu of the full
 command name. This facility should not be used in scripting as new commands may
@@ -217,7 +218,9 @@ is given, the key will be added to that keyring also.
 .P
 If there is no key, the first command will simply return the error ENOKEY and
 fail. The second and third commands will create a partial key with the type and
-description, and call out to \fB/sbin/request-key\fR with that key and the
+description, and call out to
+.IR /sbin/request-key
+with that key and the
 extra information supplied. This will then attempt to instantiate the key in
 some manner, such that a valid key is obtained.
 .P
@@ -590,7 +593,9 @@ keyring;4043;4043;3f1f0000;fish
 \fBkeyctl reject\fR <key> <timeout> <error> <keyring>
 .P
 These commands are used to attach data to a partially set up key (as created by
-the kernel and passed to /sbin/request-key).  "instantiate" marks a key as
+the kernel and passed to
+.IR /sbin/request-key ).
+"instantiate" marks a key as
 being valid and attaches the data as the payload.  "negate" and "reject" mark a
 key as invalid and sets a timeout on it so that it'll go away after a while.
 This prevents a lot of quickly sequential requests from slowing the system down
