@@ -64,7 +64,9 @@ The key to which the link points.
 A pointer to the raw description and its length as retrieved with
 .IR keyctl_describe_alloc ().
 These will be NULL and \-1 respectively if the description couldn't be
-retrieved and errno will retain the error from
+retrieved and
+.I errno
+will retain the error from
 .IR keyctl_describe_alloc ().
 .TP
 .B data

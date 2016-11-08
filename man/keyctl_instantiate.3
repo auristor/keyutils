@@ -104,7 +104,7 @@ specifies the lifetime of the key in seconds.
 .I error
 specifies the error to be returned when a search hits the key (this is
 typically
-.IR EKEYREJECTED ", " EKEYREVOKED " or " EKEYEXPIRED ")."
+.BR EKEYREJECTED ", " EKEYREVOKED " or " EKEYEXPIRED ")."
 Note that keyctl_reject() falls back to keyctl_negate() if the kernel does not
 support it.
 .P
@@ -140,7 +140,9 @@ returns
 .BR 0 .
 On error, the value
 .B -1
-will be returned and errno will have been set to an appropriate error.
+will be returned and
+.I errno
+will have been set to an appropriate error.
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH ERRORS
 .TP
