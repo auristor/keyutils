@@ -49,7 +49,9 @@ The calling thread must have the appopriate authorisation key resident in one
 of its keyrings for this to succeed, and that authority must not have been
 revoked.
 .P
-The authorising key is allocated by request_key() when it needs to invoke
+The authorising key is allocated by
+.BR request_key()
+when it needs to invoke
 userspace to generate a key for the requesting process.  This is then attached
 to one of the keyrings of the userspace process to which the task of
 instantiating the key is given:
@@ -105,12 +107,16 @@ specifies the lifetime of the key in seconds.
 specifies the error to be returned when a search hits the key (this is
 typically
 .BR EKEYREJECTED ", " EKEYREVOKED " or " EKEYEXPIRED ")."
-Note that keyctl_reject() falls back to keyctl_negate() if the kernel does not
+Note that
+.BR keyctl_reject ()
+falls back to
+.BR keyctl_negate ()
+if the kernel does not
 support it.
 .P
 .BR keyctl_negate ()
 as
-.IR keyctl_reject ()
+.BR keyctl_reject ()
 with an error code of
 .IB ENOKEY .
 .P

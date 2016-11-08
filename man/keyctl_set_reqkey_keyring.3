@@ -24,7 +24,9 @@ sets the default destination for implicit key requests for the current thread
 and returns the old setting.
 .P
 After this operation has been issued, keys acquired by implicit key requests,
-such as might be performed by open() on an AFS or NFS filesystem, will be
+such as might be performed by
+.BR open ()
+on an AFS or NFS filesystem, will be
 linked by default to the specified keyring by this function.
 .P
 The valid values of
