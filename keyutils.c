@@ -234,6 +234,16 @@ long keyctl_get_persistent(uid_t uid, key_serial_t id)
 	return keyctl(KEYCTL_GET_PERSISTENT, uid, id);
 }
 
+long keyctl_dh_compute(key_serial_t priv, key_serial_t prime,
+		       key_serial_t base, char *buffer, size_t buflen)
+{
+	struct keyctl_dh_params params = { .priv = priv,
+					   .prime = prime,
+					   .base = base };
+
+	return keyctl(KEYCTL_DH_COMPUTE, &params, buffer, buflen, 0);
+}
+
 /*****************************************************************************/
 /*
  * fetch key description into an allocated buffer
@@ -341,6 +351,38 @@ int keyctl_get_security_alloc(key_serial_t id, char **_buffer)
 
 	*_buffer = buf;
 	return ret - 1;
+}
+
+/*****************************************************************************/
+/*
+ * fetch DH computation results into an allocated buffer
+ * - resulting buffer has an extra NUL added to the end
+ * - returns count (not including extraneous NUL)
+ */
+int keyctl_dh_compute_alloc(key_serial_t priv, key_serial_t prime,
+			    key_serial_t base, void **_buffer)
+{
+	char *buf;
+	long buflen, ret;
+
+	ret = keyctl_dh_compute(priv, prime, base, NULL, 0);
+	if (ret < 0)
+		return -1;
+
+	buflen = ret;
+	buf = malloc(buflen + 1);
+	if (!buf)
+		return -1;
+
+	ret = keyctl_dh_compute(priv, prime, base, buf, buflen);
+	if (ret < 0) {
+		free(buf);
+		return -1;
+	}
+
+	buf[ret] = 0;
+	*_buffer = buf;
+	return ret;
 }
 
 /*

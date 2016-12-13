@@ -66,6 +66,7 @@ static nr void act_keyctl_reap(int argc, char *argv[]);
 static nr void act_keyctl_purge(int argc, char *argv[]);
 static nr void act_keyctl_invalidate(int argc, char *argv[]);
 static nr void act_keyctl_get_persistent(int argc, char *argv[]);
+static nr void act_keyctl_dh_compute(int argc, char *argv[]);
 
 const struct command commands[] = {
 	{ act_keyctl___version,	"--version",	"" },
@@ -74,6 +75,7 @@ const struct command commands[] = {
 	{ act_keyctl_chown,	"chown",	"<key> <uid>" },
 	{ act_keyctl_clear,	"clear",	"<keyring>" },
 	{ act_keyctl_describe,	"describe",	"<keyring>" },
+	{ act_keyctl_dh_compute, "dh_compute",	"<private> <prime> <base>" },
 	{ act_keyctl_instantiate, "instantiate","<key> <data> <keyring>" },
 	{ act_keyctl_invalidate,"invalidate",	"<key>" },
 	{ act_keyctl_get_persistent, "get_persistent", "<keyring> [<uid>]" },
@@ -1622,6 +1624,56 @@ static void act_keyctl_get_persistent(int argc, char *argv[])
 
 	/* print the resulting key ID */
 	printf("%d\n", ret);
+	exit(0);
+}
+
+/*****************************************************************************/
+/*
+ * Perform Diffie-Hellman computation
+ */
+static void act_keyctl_dh_compute(int argc, char *argv[])
+{
+	key_serial_t priv, prime, base;
+	void *buffer;
+	char *p;
+	int ret, sep, col;
+
+	if (argc != 4)
+		format();
+
+	priv = get_key_id(argv[1]);
+	prime = get_key_id(argv[2]);
+	base = get_key_id(argv[3]);
+
+	ret = keyctl_dh_compute_alloc(priv, prime, base, &buffer);
+	if (ret < 0)
+		error("keyctl_dh_compute_alloc");
+
+	/* hexdump the contents */
+	printf("%u bytes of data in result:\n", ret);
+
+	sep = 0;
+	col = 0;
+	p = buffer;
+
+	do {
+		if (sep) {
+			putchar(sep);
+			sep = 0;
+		}
+
+		printf("%02hhx", *p);
+		p++;
+
+		col++;
+		if (col % 32 == 0)
+			sep = '\n';
+		else if (col % 4 == 0)
+			sep = ' ';
+
+	} while (--ret > 0);
+
+	printf("\n");
 	exit(0);
 }
 
