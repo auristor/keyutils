@@ -10,7 +10,7 @@
 .TH KEYCTL_SESSION_TO_PARENT 3 "20 Feb 2014" Linux "Linux Key Management Calls"
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH NAME
-keyctl_session_to_parent \- Set the parent process's session keyring
+keyctl_session_to_parent \- set the parent process's session keyring
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH SYNOPSIS
 .nf
@@ -39,7 +39,9 @@ On success
 .BR keyctl_session_to_parent ()
 returns 0.  On error, the value
 .B -1
-will be returned and errno will have been set to an appropriate error.
+will be returned and
+.I errno
+will have been set to an appropriate error.
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH ERRORS
 .TP

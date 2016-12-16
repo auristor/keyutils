@@ -10,15 +10,7 @@
 .TH KEYCTL_INSTANTIATE 3 "4 May 2006" Linux "Linux Key Management Calls"
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH NAME
-keyctl_assume_authority \- Assume the authority to instantiate a key
-.br
-keyctl_instantiate \- Instantiate a key from flat data
-.br
-keyctl_instantiate_iov \- Instantiate a key from segmented data
-.br
-keyctl_reject \- Negatively instantiate a key specifying search error
-.br
-keyctl_negate \- Negatively instantiate a key
+keyctl_assume_authority, keyctl_instantiate, keyctl_instantiate_iov, keyctl_reject, keyctl_negate \- key instantiation functions
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH SYNOPSIS
 .nf
@@ -49,7 +41,9 @@ The calling thread must have the appopriate authorisation key resident in one
 of its keyrings for this to succeed, and that authority must not have been
 revoked.
 .P
-The authorising key is allocated by request_key() when it needs to invoke
+The authorising key is allocated by
+.BR request_key()
+when it needs to invoke
 userspace to generate a key for the requesting process.  This is then attached
 to one of the keyrings of the userspace process to which the task of
 instantiating the key is given:
@@ -104,13 +98,17 @@ specifies the lifetime of the key in seconds.
 .I error
 specifies the error to be returned when a search hits the key (this is
 typically
-.IR EKEYREJECTED ", " EKEYREVOKED " or " EKEYEXPIRED ")."
-Note that keyctl_reject() falls back to keyctl_negate() if the kernel does not
+.BR EKEYREJECTED ", " EKEYREVOKED " or " EKEYEXPIRED ")."
+Note that
+.BR keyctl_reject ()
+falls back to
+.BR keyctl_negate ()
+if the kernel does not
 support it.
 .P
 .BR keyctl_negate ()
 as
-.IR keyctl_reject ()
+.BR keyctl_reject ()
 with an error code of
 .IB ENOKEY .
 .P
@@ -140,7 +138,9 @@ returns
 .BR 0 .
 On error, the value
 .B -1
-will be returned and errno will have been set to an appropriate error.
+will be returned and
+.I errno
+will have been set to an appropriate error.
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH ERRORS
 .TP

@@ -10,7 +10,7 @@
 .TH FIND_KEY_BY_TYPE_AND_NAME 3 "10 Sep 2013" Linux "Linux Key Utility Calls"
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH NAME
-find_key_by_type_and_name \- Find a key by type and name
+find_key_by_type_and_name \- find a key by type and name
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH SYNOPSIS
 .nf
@@ -26,7 +26,8 @@ searches for a key with the given
 and exact
 .IR description ,
 firstly in the thread, process and session keyrings to which a process is
-subscribed and secondly in /proc/keys.
+subscribed and secondly in
+.IR /proc/keys .
 .P
 If a key is found, and
 .I destringid

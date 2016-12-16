@@ -10,7 +10,7 @@
 .TH KEYRINGS 7 "21 Feb 2014" Linux "Kernel key management"
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH NAME
-keyutils \- In-kernel key management utilities
+keyutils \- in-kernel key management utilities
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH DESCRIPTION
 The
@@ -34,11 +34,11 @@ To link with the library, the following:
 should be specified to the linker.
 .P
 Three system calls are provided:
-.IP \fBadd_key\fP()
+.BR \fBadd_key\fP()
 Supply a new key to the kernel.
-.IP \fBrequest_key\fP()
+.BR \fBrequest_key\fP()
 Find an existing key for use, or, optionally, create one if one does not exist.
-.IP \fBkeyctl\fP()
+.BR \fBkeyctl\fP()
 Control a key in various ways.  The library provides a variety of wrappers
 around this system call and those should be used rather than calling it
 directly.
@@ -80,9 +80,9 @@ The upcalling mechanism is usually routed via the:
 program.  What this does with any particular key is configurable in:
 .P
 .RS
-.B /etc/request-key.conf
+.I /etc/request-key.conf
 .br
-.B /etc/request-key.d/
+.I /etc/request-key.d/
 .RE
 .P
 See the

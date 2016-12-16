@@ -10,7 +10,7 @@
 .TH KEYCTL_DESCRIBE 3 "4 May 2006" Linux "Linux Key Management Calls"
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH NAME
-keyctl_describe \- Describe a key
+keyctl_describe \- describe a key
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH SYNOPSIS
 .nf
@@ -65,13 +65,17 @@ returns the amount of data placed into the buffer.  If the buffer was too
 small, then the size of buffer required will be returned, but no data will be
 transferred.  On error, the value
 .B -1
-will be returned and errno will have been set to an appropriate error.
+will be returned and
+.I errno
+will have been set to an appropriate error.
 .P
 On success
 .BR keyctl_describe_alloc ()
 returns the amount of data in the buffer, less the NUL terminator.  On error, the value
 .B -1
-will be returned and errno will have been set to an appropriate error.
+will be returned and
+.I errno
+will have been set to an appropriate error.
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH ERRORS
 .TP

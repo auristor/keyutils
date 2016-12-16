@@ -10,9 +10,7 @@
 .TH RECURSIVE_KEY_SCAN 3 "10 Mar 2011" Linux "Linux Key Utility Calls"
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH NAME
-recursive_key_scan \- Apply a function to all keys in a keyring tree
-.br
-recursive_session_key_scan \- Apply a function to all keys in the session keyring tree
+recursive_key_scan, recursive_session_key_scan \- apply a function to all keys in a keyring tree
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH SYNOPSIS
 .nf
@@ -45,7 +43,7 @@ func.
 .P
 .BR recursive_session_key_scan ()
 works exactly like
-.IR recursive_key_scan ()
+.BR recursive_key_scan ()
 with the caller's session keyring specified as the starting keyring.
 .P
 The callback function is called for each link found in all the keyrings in the
@@ -62,10 +60,12 @@ The key to which the link points.
 .TP
 .BR desc " and " desc_len
 A pointer to the raw description and its length as retrieved with
-.IR keyctl_describe_alloc ().
+.BR keyctl_describe_alloc ().
 These will be NULL and \-1 respectively if the description couldn't be
-retrieved and errno will retain the error from
-.IR keyctl_describe_alloc ().
+retrieved and
+.I errno
+will retain the error from
+.BR keyctl_describe_alloc ().
 .TP
 .B data
 The data passed to the scanner function.
