@@ -71,12 +71,8 @@ The kernel has the ability to upcall to userspace to fabricate new keys.  This
 can be triggered by \fBrequest_key\fP(), but userspace is better off using
 \fBadd_key\fP() instead if it possibly can.
 .P
-The upcalling mechanism is usually routed via the:
-.P
-.RS
-.B request\-key
-.RE
-.P
+The upcalling mechanism is usually routed via the
+.BR request\-key (8)
 program.  What this does with any particular key is configurable in:
 .P
 .RS
