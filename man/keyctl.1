@@ -149,9 +149,7 @@ keyrings and in
 Any non-ambiguous shortening of a command name may be used in lieu of the full
 command name. This facility should not be used in scripting as new commands may
 be added in future that then cause ambiguity.
-.P
-(*) \fBDisplay the package version number\fR
-.P
+.SS Display the package version number
 \fBkeyctl \-\-version\fR
 .P
 This command prints the package version number and build date and exits:
@@ -161,18 +159,14 @@ testbox>keyctl \-\-version
 .br
 keyctl from keyutils-1.5.3 (Built 2011-08-24)
 .RE
-.P
-(*) \fBShow process keyrings\fR
-.P
+.SS Show process keyrings
 \fBkeyctl show [\-x] [<keyring>]\fR
 .P
 By default this command recursively shows what keyrings a process is subscribed
 to and what keys and keyrings they contain.  If a keyring is specified then
 that keyring will be dumped instead.  If \fB-x\fR is specified then the keyring
 IDs will be dumped in hex instead of decimal.
-.P
-(*) \fBAdd a key to a keyring\fR
-.P
+.SS Add a key to a keyring
 \fBkeyctl add\fR <type> <desc> <data> <keyring>
 .br
 \fBkeyctl padd\fR <type> <desc> <keyring>
@@ -195,9 +189,7 @@ testbox>echo \-n stuff | keyctl padd user mykey @u
 .br
 26
 .RE
-.P
-(*) \fBRequest a key\fR
-.P
+.SS Request a key
 \fBkeyctl request\fR <type> <desc> [<dest_keyring>]
 .br
 \fBkeyctl request2\fR <type> <desc> <info> [<dest_keyring>]
@@ -240,9 +232,7 @@ testbox>keyctl request user debug:hello
 .br
 23
 .RE
-.P
-(*) \fBUpdate a key\fR
-.P
+.SS Update a key
 \fBkeyctl update\fR <key> <data>
 .br
 \fBkeyctl pupdate\fR <key>
@@ -261,9 +251,7 @@ taking it from the command line:
 .RS
 testbox>echo \-n zebra | keyctl pupdate 23
 .RE
-.P
-(*) \fBCreate a keyring\fR
-.P
+.SS Create a keyring
 \fBkeyctl newring\fR <name> <keyring>
 .P
 This command creates a new keyring of the specified name and attaches it to the
@@ -275,9 +263,7 @@ testbox>keyctl newring squelch @us
 .br
 27
 .RE
-.P
-(*) \fBRevoke a key\fR
-.P
+.SS Revoke a key
 \fBkeyctl revoke\fR <key>
 .P
 This command marks a key as being revoked. Any further operations on that key
@@ -290,9 +276,7 @@ testbox>keyctl describe 26
 .br
 keyctl_describe: Key has been revoked
 .RE
-.P
-(*) \fBClear a keyring\fR
-.P
+.SS Clear a keyring
 \fBkeyctl clear\fR <keyring>
 .P
 This command unlinks all the keys attached to the specified keyring. Error
@@ -301,9 +285,7 @@ This command unlinks all the keys attached to the specified keyring. Error
 .RS
 testbox>keyctl clear 27
 .RE
-.P
-(*) \fBLink a key to a keyring\fR
-.P
+.SS Link a key to a keyring
 \fBkeyctl link\fR <key> <keyring>
 .P
 This command makes a link from the key to the keyring if there's enough
@@ -321,9 +303,7 @@ testbox>keyctl link 27 27
 .br
 keyctl_link: Resource deadlock avoided
 .RE
-.P
-(*) \fBUnlink a key from a keyring or the session keyring tree\fR
-.P
+.SS Unlink a key from a keyring or the session keyring tree
 \fBkeyctl unlink\fR <key> [<keyring>]
 .P
 If the keyring is specified, this command removes a link to the key from the
@@ -340,9 +320,7 @@ unlinks before exiting.
 .RS
 testbox>keyctl unlink 23 27
 .RE
-.P
-(*) \fBSearch a keyring\fR
-.P
+.SS Search a keyring
 \fBkeyctl search\fR <keyring> <type> <desc> [<dest_keyring>]
 .P
 This command non-recursively searches a keyring for a key of a particular type
@@ -360,7 +338,7 @@ testbox>keyctl search @us user debug:bye
 keyctl_search: Requested key not available
 .RE
 .P
-(*) \fBRead a key\fR
+.SS Read a key
 .P
 \fBkeyctl read\fR <key>
 .br
@@ -390,9 +368,7 @@ testbox>keyctl pipe 26
 .br
 btestbox>
 .RE
-.P
-(*) \fBList a keyring\fR
-.P
+.SS List a keyring
 \fBkeyctl list\fR <keyring>
 .br
 \fBkeyctl rlist\fR <keyring>
@@ -415,9 +391,7 @@ testbox>keyctl rlist @us
 .br
 22 23
 .RE
-.P
-(*) \fBDescribe a key\fR
-.P
+.SS Describe a key
 \fBkeyctl describe\fR <keyring>
 .br
 \fBkeyctl rdescribe\fR <keyring> [sep]
@@ -437,9 +411,7 @@ The raw string is "<type>;<uid>;<gid>;<perms>;<description>", where \fIuid\fR
 and \fIgid\fR are the decimal user and group IDs, \fIperms\fR is the
 permissions mask in hex, \fItype\fR and \fIdescription\fR are the type name and
 description strings (neither of which will contain semicolons).
-.P
-(*) \fBChange the access controls on a key\fR
-.P
+.SS Change the access controls on a key
 \fBkeyctl chown\fR <key> <uid>
 .br
 \fBkeyctl chgrp\fR <key> <gid>
@@ -460,9 +432,7 @@ keyctl_chown: Operation not supported
 .br
 testbox>sudo keyctl chgrp 27 0
 .RE
-.P
-(*) \fBSet the permissions mask on a key\fR
-.P
+.SS Set the permissions mask on a key
 \fBkeyctl setperm\fR <key> <mask>
 .P
 This command changes the permission control mask on a key. The mask may be
@@ -510,9 +480,7 @@ permissions mask and timeout changed.
 .RS
 testbox>keyctl setperm 27 0x1f1f1f00
 .RE
-.P
-(*) \fBStart a new session with fresh keyrings\fR
-.P
+.SS Start a new session with fresh keyrings
 \fBkeyctl session\fR
 .br
 \fBkeyctl session\fR - [<prog> <arg1> <arg2> ...]
@@ -574,9 +542,7 @@ Joined session keyring: 35
 .br
 keyring;4043;4043;3f1f0000;fish
 .RE
-.P
-(*) \fBInstantiate a key\fR
-.P
+.SS Instantiate a key
 \fBkeyctl instantiate\fR <key> <data> <keyring>
 .br
 \fBkeyctl pinstantiate\fR <key> <keyring>
@@ -620,9 +586,7 @@ than taking it from the command line:
 .RS
 testbox>echo \-n "Debug $3" | keyctl pinstantiate $1 $4
 .RE
-.P
-(*) \fBSet the expiry time on a key\fR
-.P
+.SS Set the expiry time on a key
 \fBkeyctl timeout\fR <key> <timeout>
 .P
 This command is used to set the timeout on a key, or clear an existing timeout
@@ -632,9 +596,7 @@ into the future.
 .RS
 testbox>keyctl timeout $1 45
 .RE
-.P
-(*) \fBRetrieve a key's security context\fR
-.P
+.SS Retrieve a key's security context
 \fBkeyctl security\fR <key>
 .P
 This command is used to retrieve a key's LSM security context.  The label is
@@ -645,9 +607,7 @@ testbox>keyctl security @s
 .br
 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 .RE
-.P
-(*) \fBGive the parent process a new session keyring\fR
-.P
+.SS Give the parent process a new session keyring
 \fBkeyctl new_session\fR
 .P
 This command is used to give the invoking process (typically a shell) a new
@@ -680,9 +640,7 @@ call, and so may only affect processes with matching credentials.
 Furthermore, the change does not take effect till the parent process next
 transitions from kernel space to user space - typically when the \fBwait\fP()
 system call returns.
-.P
-(*) \fBRemove dead keys from the session keyring tree\fR
-.P
+.SS Remove dead keys from the session keyring tree
 \fBkeyctl reap\fR
 .P
 This command performs a depth-first search of the caller's session keyring tree
@@ -697,9 +655,7 @@ Search permission to the caller will be searched.
 The command prints the number of keys reaped before it exits.  If the \fB-v\fR
 flag is passed then the reaped keys are listed as they're being reaped,
 together with the success or failure of the unlink.
-.P
-(*) \fBRemove matching keys from the session keyring tree\fR
-.P
+.SS Remove matching keys from the session keyring tree
 \fBkeyctl\fR purge <type>
 .br
 \fBkeyctl\fR purge [\-i] [\-p] <type> <desc>
@@ -724,9 +680,7 @@ The third variant purges all keys of the specified type and matching
 description using the key type's comparator in the kernel to match the
 description.  This permits the key type to match a key with a variety of
 descriptions.
-.P
-(*) \fBGet persistent keyring\fR
-.P
+.SS Get persistent keyring
 \fBkeyctl\fR get_persistent <keyring> [<uid>]
 .P
 This command gets the persistent keyring for either the current UID or the
@@ -744,9 +698,7 @@ will be removed and everything it pins can then be garbage collected.
 .P
 If a UID other than the process's real or effective UIDs is specified, then an
 error will be given if the process does not have the CAP_SETUID capability.
-.P
-(*) \fBCompute a Diffie-Hellman shared secret or public key\fR
-.P
+.SS Compute a Diffie-Hellman shared secret or public key
 \fBkeyctl\fR dh_compute <private> <prime> <base>
 .P
 This command computes either a Diffie-Hellman shared secret or the
