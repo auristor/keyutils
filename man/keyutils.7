@@ -34,11 +34,14 @@ To link with the library, the following:
 should be specified to the linker.
 .P
 Three system calls are provided:
-.BR \fBadd_key\fP()
+.TP
+.BR add_key (2)
 Supply a new key to the kernel.
-.BR \fBrequest_key\fP()
+.TP
+.BR request_key (2)
 Find an existing key for use, or, optionally, create one if one does not exist.
-.BR \fBkeyctl\fP()
+.TP
+.BR keyctl (2)
 Control a key in various ways.  The library provides a variety of wrappers
 around this system call and those should be used rather than calling it
 directly.
