@@ -9,7 +9,7 @@
 .\"
 .TH KEYCTL 1 "20 Feb 2014" Linux "Linux Key Management Utilities"
 .SH NAME
-keyctl - key management facility control
+keyctl \- key management facility control
 .SH SYNOPSIS
 \fBkeyctl\fR \-\-version
 .br
@@ -65,7 +65,7 @@ keyctl - key management facility control
 .br
 \fBkeyctl\fR session
 .br
-\fBkeyctl\fR session - [<prog> <arg1> <arg2> ...]
+\fBkeyctl\fR session \- [<prog> <arg1> <arg2> ...]
 .br
 \fBkeyctl\fR session <name> [<prog> <arg1> <arg2> ...]
 .br
@@ -102,35 +102,35 @@ can be passed as arguments:
 .TP
 No key: \fB0\fR
 .TP
-Thread keyring: \fB@t\fR or \fB-1\fR
+Thread keyring: \fB@t\fR or \fB\-1\fR
 Each thread may have its own keyring. This is searched first, before all
 others. The thread keyring is replaced by (v)fork, exec and clone.
 .TP
-Process keyring: \fB@p\fR or \fB-2\fR
+Process keyring: \fB@p\fR or \fB\-2\fR
 Each process (thread group) may have its own keyring. This is shared between
 all members of a group and will be searched after the thread keyring. The
 process keyring is replaced by (v)fork and exec.
 .TP
-Session keyring: \fB@s\fR or \fB-3\fR
+Session keyring: \fB@s\fR or \fB\-3\fR
 Each process subscribes to a session keyring that is inherited across (v)fork,
 exec and clone. This is searched after the process keyring. Session keyrings
 can be named and an extant keyring can be joined in place of a process's
 current session keyring.
 .TP
-User specific keyring: \fB@u\fR or \fB-4\fR
+User specific keyring: \fB@u\fR or \fB\-4\fR
 This keyring is shared between all the processes owned by a particular user. It
 isn't searched directly, but is normally linked to from the session keyring.
 .TP
-User default session keyring: \fB@us\fR or \fB-5\fR
+User default session keyring: \fB@us\fR or \fB\-5\fR
 This is the default session keyring for a particular user. Login processes that
 change to a particular user will bind to this session until another session is
 set.
 .TP
-Group specific keyring: \fB@g\fR or \fB-6\fR
+Group specific keyring: \fB@g\fR or \fB\-6\fR
 This is a place holder for a group specific keyring, but is not actually
 implemented yet in the kernel.
 .TP
-Assumed request_key authorisation key: \fB@a\fR or \fB-7\fR
+Assumed request_key authorisation key: \fB@a\fR or \fB\-7\fR
 This selects the authorisation key provided to the
 .BR request_key ()
 helper to
@@ -156,7 +156,7 @@ This command prints the package version number and build date and exits:
 .RS
 .nf
 $ keyctl \-\-version
-keyctl from keyutils-1.5.3 (Built 2011-08-24)
+keyctl from keyutils\-1.5.3 (Built 2011\-08\-24)
 .fi
 .RE
 .SS Show process keyrings
@@ -164,7 +164,7 @@ keyctl from keyutils-1.5.3 (Built 2011-08-24)
 
 By default this command recursively shows what keyrings a process is subscribed
 to and what keys and keyrings they contain.  If a keyring is specified then
-that keyring will be dumped instead.  If \fB-x\fR is specified then the keyring
+that keyring will be dumped instead.  If \fB\-x\fR is specified then the keyring
 IDs will be dumped in hex instead of decimal.
 .SS Add a key to a keyring
 \fBkeyctl add\fR <type> <desc> <data> <keyring>
@@ -206,7 +206,7 @@ is given, the key will be added to that keyring also.
 If there is no key, the first command will simply return the error ENOKEY and
 fail. The second and third commands will create a partial key with the type and
 description, and call out to
-.IR /sbin/request-key
+.IR /sbin/request\-key
 with that key and the
 extra information supplied. This will then attempt to instantiate the key in
 some manner, such that a valid key is obtained.
@@ -383,8 +383,8 @@ No attempt is made to check that the specified keyring is a keyring.
 .nf
 $ keyctl list @us
 2 keys in keyring:
-       22: vrwsl----------  4043    \-1 keyring: _uid.4043
-       23: vrwsl----------  4043  4043 user: debug:hello
+       22: vrwsl\-\-\-\-\-\-\-\-\-\-  4043    \-1 keyring: _uid.4043
+       23: vrwsl\-\-\-\-\-\-\-\-\-\-  4043  4043 user: debug:hello
 $ keyctl rlist @us
 22 23
 .fi
@@ -401,9 +401,9 @@ raw data returned from the kernel.
 .RS
 .nf
 $ keyctl describe @us
-       \-5: vrwsl----------  4043    \-1 keyring: _uid_ses.4043
+       \-5: vrwsl\-\-\-\-\-\-\-\-\-\-  4043    \-1 keyring: _uid_ses.4043
 $ keyctl rdescribe @us
-keyring;4043;-1;3f1f0000;_uid_ses.4043
+keyring;4043;\-1;3f1f0000;_uid_ses.4043
 .fi
 .RE
 
@@ -479,7 +479,7 @@ $ keyctl setperm 27 0x1f1f1f00
 .SS Start a new session with fresh keyrings
 \fBkeyctl session\fR
 .br
-\fBkeyctl session\fR - [<prog> <arg1> <arg2> ...]
+\fBkeyctl session\fR \- [<prog> <arg1> <arg2> ...]
 .br
 \fBkeyctl session\fR <name> [<prog> <arg1> <arg2> ...]
 
@@ -500,7 +500,7 @@ $SHELL if one isn't supplied.
 .RS
 .nf
 $ keyctl rdescribe @s
-keyring;4043;-1;3f1f0000;_uid_ses.4043
+keyring;4043;\-1;3f1f0000;_uid_ses.4043
 
 $ keyctl session
 Joined session keyring: 28
@@ -508,12 +508,12 @@ Joined session keyring: 28
 $ keyctl rdescribe @s
 keyring;4043;4043;3f1f0000;_ses.24082
 
-$ keyctl session -
+$ keyctl session \-
 Joined session keyring: 29
 $ keyctl rdescribe @s
 keyring;4043;4043;3f1f0000;_ses.24139
 
-$ keyctl session - keyctl rdescribe @s
+$ keyctl session \- keyctl rdescribe @s
 Joined session keyring: 30
 keyring;4043;4043;3f1f0000;_ses.24185
 
@@ -538,7 +538,7 @@ keyring;4043;4043;3f1f0000;fish
 
 These commands are used to attach data to a partially set up key (as created by
 the kernel and passed to
-.IR /sbin/request-key ).
+.IR /sbin/request\-key ).
 "instantiate" marks a key as
 being valid and attaches the data as the payload.  "negate" and "reject" mark a
 key as invalid and sets a timeout on it so that it'll go away after a while.
@@ -552,8 +552,8 @@ Reject's error argument can either be a UNIX error number or one of
 
 The newly instantiated key will be attached to the specified keyring.
 
-These commands may only be run from the program run by request-key - a special
-authorisation key is set up by the kernel and attached to the request-key's
+These commands may only be run from the program run by request\-key - a special
+authorisation key is set up by the kernel and attached to the request\-key's
 session keyring. This special key is revoked once the key to which it refers
 has been instantiated one way or another.
 
@@ -594,7 +594,7 @@ printed on stdout.
 .RS
 .nf
 $ keyctl security @s
-unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+unconfined_u:unconfined_r:unconfined_t:s0\-s0:c0.c1023
 .fi
 .RE
 .SS Give the parent process a new session keyring
@@ -635,7 +635,7 @@ A key that is designated reapable will only be removed from a keyring if the
 caller has Write permission on that keyring, and only keyrings that grant
 Search permission to the caller will be searched.
 
-The command prints the number of keys reaped before it exits.  If the \fB-v\fR
+The command prints the number of keys reaped before it exits.  If the \fB\-v\fR
 flag is passed then the reaped keys are listed as they're being reaped,
 together with the success or failure of the unlink.
 .SS Remove matching keys from the session keyring tree
