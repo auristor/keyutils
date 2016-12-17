@@ -155,7 +155,7 @@ be added in future that then cause ambiguity.
 This command prints the package version number and build date and exits:
 .P
 .RS
-testbox>keyctl \-\-version
+$ keyctl \-\-version
 .br
 keyctl from keyutils-1.5.3 (Built 2011-08-24)
 .RE
@@ -176,7 +176,7 @@ it with the given data and attaches it to the specified keyring. It then prints
 the new key's ID on stdout:
 .P
 .RS
-testbox>keyctl add user mykey stuff @u
+$ keyctl add user mykey stuff @u
 .br
 26
 .RE
@@ -185,7 +185,7 @@ The \fBpadd\fR variant of the command reads the data from stdin rather than
 taking it from the command line:
 .P
 .RS
-testbox>echo \-n stuff | keyctl padd user mykey @u
+$ echo \-n stuff | keyctl padd user mykey @u
 .br
 26
 .RE
@@ -220,15 +220,15 @@ to the destination keyring if given and the error "Requested key not available"
 will be given.
 .P
 .RS
-testbox>keyctl request2 user debug:hello wibble
+$ keyctl request2 user debug:hello wibble
 .br
 23
 .br
-testbox>echo \-n wibble | keyctl prequest2 user debug:hello
+$ echo \-n wibble | keyctl prequest2 user debug:hello
 .br
 23
 .br
-testbox>keyctl request user debug:hello
+$ keyctl request user debug:hello
 .br
 23
 .RE
@@ -242,14 +242,14 @@ type of the key doesn't support update then error "Operation not supported"
 will be returned.
 .P
 .RS
-testbox>keyctl update 23 zebra
+$ keyctl update 23 zebra
 .RE
 .P
 The \fBpupdate\fR variant of the command reads the data from stdin rather than
 taking it from the command line:
 .P
 .RS
-testbox>echo \-n zebra | keyctl pupdate 23
+$ echo \-n zebra | keyctl pupdate 23
 .RE
 .SS Create a keyring
 \fBkeyctl newring\fR <name> <keyring>
@@ -259,7 +259,7 @@ specified keyring. The ID of the new keyring will be printed to stdout if
 successful.
 .P
 .RS
-testbox>keyctl newring squelch @us
+$ keyctl newring squelch @us
 .br
 27
 .RE
@@ -270,9 +270,9 @@ This command marks a key as being revoked. Any further operations on that key
 (apart from unlinking it) will return error "Key has been revoked".
 .P
 .RS
-testbox>keyctl revoke 26
+$ keyctl revoke 26
 .br
-testbox>keyctl describe 26
+$ keyctl describe 26
 .br
 keyctl_describe: Key has been revoked
 .RE
@@ -283,7 +283,7 @@ This command unlinks all the keys attached to the specified keyring. Error
 "Not a directory" will be returned if the key specified is not a keyring.
 .P
 .RS
-testbox>keyctl clear 27
+$ keyctl clear 27
 .RE
 .SS Link a key to a keyring
 \fBkeyctl link\fR <key> <keyring>
@@ -297,9 +297,9 @@ deadlock avoided" will be returned if an attempt was made to introduce a
 recursive link.
 .P
 .RS
-testbox>keyctl link 23 27
+$ keyctl link 23 27
 .br
-testbox>keyctl link 27 27
+$ keyctl link 27 27
 .br
 keyctl_link: Resource deadlock avoided
 .RE
@@ -318,7 +318,7 @@ finds (and that it is permitted to remove).  It prints the number of successful
 unlinks before exiting.
 .P
 .RS
-testbox>keyctl unlink 23 27
+$ keyctl unlink 23 27
 .RE
 .SS Search a keyring
 \fBkeyctl search\fR <keyring> <type> <desc> [<dest_keyring>]
@@ -329,11 +329,11 @@ key will be attached to the destination keyring if present. Error "Requested
 key not available" will be returned if the key is not found.
 .P
 .RS
-testbox>keyctl search @us user debug:hello
+$ keyctl search @us user debug:hello
 .br
 23
 .br
-testbox>keyctl search @us user debug:bye
+$ keyctl search @us user debug:bye
 .br
 keyctl_search: Requested key not available
 .RE
@@ -354,19 +354,19 @@ If the key type does not support reading of the payload, then error "Operation
 not supported" will be returned.
 .P
 .RS
-testbox>keyctl read 26
+$ keyctl read 26
 .br
 1 bytes of data in key:
 .br
 62
 .br
-testbox>keyctl print 26
+$ keyctl print 26
 .br
 b
 .br
-testbox>keyctl pipe 26
+$ keyctl pipe 26
 .br
-btestbox>
+$
 .RE
 .SS List a keyring
 \fBkeyctl list\fR <keyring>
@@ -379,7 +379,7 @@ the contents and "rlist" just produces a space-separated list of key IDs.
 No attempt is made to check that the specified keyring is a keyring.
 .P
 .RS
-testbox>keyctl list @us
+$ keyctl list @us
 .br
 2 keys in keyring:
 .br
@@ -387,7 +387,7 @@ testbox>keyctl list @us
 .br
        23: vrwsl----------  4043  4043 user: debug:hello
 .br
-testbox>keyctl rlist @us
+$ keyctl rlist @us
 .br
 22 23
 .RE
@@ -401,9 +401,9 @@ description in the same fashion as the "list" command; "rdescribe" prints the
 raw data returned from the kernel.
 .P
 .RS
-testbox>keyctl describe @us
+$ keyctl describe @us
        \-5: vrwsl----------  4043    \-1 keyring: _uid_ses.4043
-testbox>keyctl rdescribe @us
+$ keyctl rdescribe @us
 keyring;4043;-1;3f1f0000;_uid_ses.4043
 .RE
 .P
@@ -426,11 +426,11 @@ For non-superuser users, the GID may only be set to the process's GID or a GID
 in the process's groups list. The superuser may set any GID it likes.
 .P
 .RS
-testbox>sudo keyctl chown 27 0
+$ sudo keyctl chown 27 0
 .br
 keyctl_chown: Operation not supported
 .br
-testbox>sudo keyctl chgrp 27 0
+$ sudo keyctl chgrp 27 0
 .RE
 .SS Set the permissions mask on a key
 \fBkeyctl setperm\fR <key> <mask>
@@ -478,7 +478,7 @@ linked is searched.
 permissions mask and timeout changed.
 .P
 .RS
-testbox>keyctl setperm 27 0x1f1f1f00
+$ keyctl setperm 27 0x1f1f1f00
 .RE
 .SS Start a new session with fresh keyrings
 \fBkeyctl session\fR
@@ -502,41 +502,41 @@ attaches that as the session keyring; it then exec's the supplied command, or
 $SHELL if one isn't supplied.
 .P
 .RS
-testbox>keyctl rdescribe @s
+$ keyctl rdescribe @s
 .br
 keyring;4043;-1;3f1f0000;_uid_ses.4043
 .P
-testbox>keyctl session
+$ keyctl session
 .br
 Joined session keyring: 28
 .br
-testbox>keyctl rdescribe @s
+$ keyctl rdescribe @s
 .br
 keyring;4043;4043;3f1f0000;_ses.24082
 .P
-testbox>keyctl session -
+$ keyctl session -
 .br
 Joined session keyring: 29
 .br
-testbox>keyctl rdescribe @s
+$ keyctl rdescribe @s
 .br
 keyring;4043;4043;3f1f0000;_ses.24139
 .P
-testbox>keyctl session - keyctl rdescribe @s
+$ keyctl session - keyctl rdescribe @s
 .br
 Joined session keyring: 30
 .br
 keyring;4043;4043;3f1f0000;_ses.24185
 .P
-testbox>keyctl session fish 
+$ keyctl session fish
 .br
 Joined session keyring: 34
 .br
-testbox>keyctl rdescribe @s
+$ keyctl rdescribe @s
 .br
 keyring;4043;4043;3f1f0000;fish
 .P
-testbox>keyctl session fish keyctl rdesc @s
+$ keyctl session fish keyctl rdesc @s
 .br
 Joined session keyring: 35
 .br
@@ -573,18 +573,18 @@ session keyring. This special key is revoked once the key to which it refers
 has been instantiated one way or another.
 .P
 .RS
-testbox>keyctl instantiate $1 "Debug $3" $4
+$ keyctl instantiate $1 "Debug $3" $4
 .br
-testbox>keyctl negate $1 30 $4
+$ keyctl negate $1 30 $4
 .br
-testbox>keyctl reject $1 30 64 $4
+$ keyctl reject $1 30 64 $4
 .RE
 .P
 The \fBpinstantiate\fR variant of the command reads the data from stdin rather
 than taking it from the command line:
 .P
 .RS
-testbox>echo \-n "Debug $3" | keyctl pinstantiate $1 $4
+$ echo \-n "Debug $3" | keyctl pinstantiate $1 $4
 .RE
 .SS Set the expiry time on a key
 \fBkeyctl timeout\fR <key> <timeout>
@@ -594,7 +594,7 @@ if the value specified is zero. The timeout is given as a number of seconds
 into the future.
 .P
 .RS
-testbox>keyctl timeout $1 45
+$ keyctl timeout $1 45
 .RE
 .SS Retrieve a key's security context
 \fBkeyctl security\fR <key>
@@ -603,7 +603,7 @@ This command is used to retrieve a key's LSM security context.  The label is
 printed on stdout.
 .P
 .RS
-testbox>keyctl security @s
+$ keyctl security @s
 .br
 unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 .RE
@@ -614,21 +614,21 @@ This command is used to give the invoking process (typically a shell) a new
 session keyring, discarding its old session keyring.
 .P
 .RS
-testbox> keyctl session foo
+$  keyctl session foo
 .br
 Joined session keyring: 723488146
 .br
-testbox> keyctl show
+$  keyctl show
 .br
 Session Keyring
 .br
        \-3 \-\-alswrv      0     0  keyring: foo
 .br
-testbox> keyctl new_session
+$  keyctl new_session
 .br
 490511412
 .br
-testbox> keyctl show
+$  keyctl show
 .br
 Session Keyring
 .br
@@ -715,7 +715,7 @@ key value, the shared secret will be computed.
 The result is printed to stdout as a hex dump.
 .P
 .RS
-testbox>keyctl dh_compute $1 $2 $3
+$ keyctl dh_compute $1 $2 $3
 .br
 8 bytes of data in result:
 .br
