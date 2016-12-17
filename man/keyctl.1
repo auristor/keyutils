@@ -100,57 +100,48 @@ using a variety of subcommands.
 The key identifiers passed to or returned from keyctl are, in general, positive
 integers. There are, however, some special values with special meanings that
 can be passed as arguments:
-.P
-(*) No key: \fB0\fR
-.P
-(*) Thread keyring: \fB@t\fR or \fB-1\fR
-.P
+.TP
+No key: \fB0\fR
+.TP
+Thread keyring: \fB@t\fR or \fB-1\fR
 Each thread may have its own keyring. This is searched first, before all
 others. The thread keyring is replaced by (v)fork, exec and clone.
-.P
-(*) Process keyring: \fB@p\fR or \fB-2\fR
-.P
+.TP
+Process keyring: \fB@p\fR or \fB-2\fR
 Each process (thread group) may have its own keyring. This is shared between
 all members of a group and will be searched after the thread keyring. The
 process keyring is replaced by (v)fork and exec.
-.P
-(*) Session keyring: \fB@s\fR or \fB-3\fR
-.P
+.TP
+Session keyring: \fB@s\fR or \fB-3\fR
 Each process subscribes to a session keyring that is inherited across (v)fork,
 exec and clone. This is searched after the process keyring. Session keyrings
 can be named and an extant keyring can be joined in place of a process's
 current session keyring.
-.P
-(*) User specific keyring: \fB@u\fR or \fB-4\fR
-.P
+.TP
+User specific keyring: \fB@u\fR or \fB-4\fR
 This keyring is shared between all the processes owned by a particular user. It
 isn't searched directly, but is normally linked to from the session keyring.
-.P
-(*) User default session keyring: \fB@us\fR or \fB-5\fR
-.P
+.TP
+User default session keyring: \fB@us\fR or \fB-5\fR
 This is the default session keyring for a particular user. Login processes that
 change to a particular user will bind to this session until another session is
 set.
-.P
-(*) Group specific keyring: \fB@g\fR or \fB-6\fR
-.P
+.TP
+Group specific keyring: \fB@g\fR or \fB-6\fR
 This is a place holder for a group specific keyring, but is not actually
 implemented yet in the kernel.
-.P
-(*) Assumed request_key authorisation key: \fB@a\fR or \fB-7\fR
-.P
+.TP
+Assumed request_key authorisation key: \fB@a\fR or \fB-7\fR
 This selects the authorisation key provided to the
 .BR request_key ()
 helper to
 permit it to access the callers keyrings and instantiate the target key.
-.P
-(*) Keyring by name: \fB%:<name>\fR
-.P
+.TP
+Keyring by name: \fB%:<name>\fR
 A named keyring.  This will be searched for in the process's keyrings and in
 .IR /proc/keys .
-.P
-(*) Key by name: \fB%<type>:<name>\fR
-.P
+.TP
+Key by name: \fB%<type>:<name>\fR
 A named key of the given type.  This will be searched for in the process's
 keyrings and in
 .IR /proc/keys .
