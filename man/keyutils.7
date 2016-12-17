@@ -28,7 +28,7 @@ to access the library:
 To link with the library, the following:
 .P
 .RS
-.B -lkeyutils
+.B \-lkeyutils
 .RE
 .P
 should be specified to the linker.
@@ -74,21 +74,21 @@ can be triggered by \fBrequest_key\fP(), but userspace is better off using
 The upcalling mechanism is usually routed via the:
 .P
 .RS
-.B request-key
+.B request\-key
 .RE
 .P
 program.  What this does with any particular key is configurable in:
 .P
 .RS
-.I /etc/request-key.conf
+.I /etc/request\-key.conf
 .br
-.I /etc/request-key.d/
+.I /etc/request\-key.d/
 .RE
 .P
 See the
-.BR request-key.conf (5)
+.BR request\-key.conf (5)
 and the
-.BR request-key (8)
+.BR request\-key (8)
 manual pages for more information.
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH SEE ALSO
@@ -102,5 +102,5 @@ manual pages for more information.
 .BR session\-keyring (7),
 .BR thread\-keyring (7),
 .BR user\-keyring (7),
-.BR user\-session-keyring (7),
+.BR user\-session\-keyring (7),
 .BR pam_keyinit (8)
