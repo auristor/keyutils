@@ -60,7 +60,8 @@ make \
 	SHAREDIR=%{datadir} \
 	RELEASE=.%{release} \
 	NO_GLIBC_KEYERR=1 \
-	CFLAGS="-Wall $RPM_OPT_FLAGS -Werror"
+	CFLAGS="-Wall $RPM_OPT_FLAGS -Werror" \
+	LDFLAGS="%{?__global_ldflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
