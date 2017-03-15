@@ -9,18 +9,18 @@
 .\"
 .TH REQUEST-KEY.CONF 5 "15 November 2011" Linux "Linux Key Management Utilities"
 .SH NAME
-request-key.conf - Instantiation handler configuration file
+request\-key.conf \- Instantiation handler configuration file
 .SH DESCRIPTION
 .P
 This file and its associated key-type specific variants are used by the
-/sbin/request-key program to determine which program it should run to
+/sbin/request\-key program to determine which program it should run to
 instantiate a key.
 .P
-request-key looks first in /etc/request-key.d/ for a file of the key type name
+request\-key looks first in /etc/request\-key.d/ for a file of the key type name
 plus ".conf" that it can use.  If that is not found, it will fall back to
-/etc/request-key.conf.
+/etc/request\-key.conf.
 .P
-request-key scans through the chosen file one line at a time until it
+request\-key scans through the chosen file one line at a time until it
 finds a match, which it will then use. If it doesn't find a match, it'll return
 an error and the kernel will automatically negate the key.
 .P
@@ -30,13 +30,13 @@ comment and ignored.
 All other lines are assumed to be command lines with a number of white space
 separated fields:
 .P
-<op> <type> <description> <callout-info> <prog> <arg1> <arg2> ...
+<op> <type> <description> <callout\-info> <prog> <arg1> <arg2> ...
 .P
-The first four fields are used to match the parameters passed to request-key by
+The first four fields are used to match the parameters passed to request\-key by
 the kernel. \fIop\fR is the operation type; currently the only supported
 operation is "create".
 .P
-\fItype\fR, \fIdescription\fR and \fIcallout-info\fR match the three parameters
+\fItype\fR, \fIdescription\fR and \fIcallout\-info\fR match the three parameters
 passed to \fBkeyctl request2\fR or the \fBrequest_key()\fR system call. Each of
 these may contain one or more asterisk '*' characters as wildcards anywhere
 within the string.
@@ -49,8 +49,8 @@ If the program name is prefixed with a pipe bar character '|', then the program
 will be forked and exec'd attached to three pipes. The callout information will
 be piped to it on it's stdin and the intended payload data will be retrieved
 from its stdout. Anything sent to stderr will be posted in syslog. If the
-program exits 0, then /sbin/request-key will attempt to instantiate the key
-with the data read from stdout. If it fails in any other way, then request-key
+program exits 0, then /sbin/request\-key will attempt to instantiate the key
+with the data read from stdout. If it fails in any other way, then request\-key
 will attempt to execute the appropriate 'negate' operation command.
 .P
 The program arguments can be substituted with various macros. Only complete
@@ -103,7 +103,7 @@ create user debug:* negate /bin/keyctl negate %k 30 %S
 .br
 create user debug:loop:* * |/bin/cat
 .br
-create user debug:* * /usr/share/keyutils/request-key-debug.sh %k %d %c %S
+create user debug:* * /usr/share/keyutils/request\-key\-debug.sh %k %d %c %S
 .br
 negate * * * /bin/keyctl negate %k 30 %S
 .RE
@@ -131,11 +131,11 @@ will create an instantiated user-defined key with the callout information as
 the payload.
 .SH FILES
 .ul
-/etc/request-key.conf
+/etc/request\-key.conf
 .ul 0
 .br
 .ul
-/etc/request-key.d/<keytype>.conf
+/etc/request\-key.d/<keytype>.conf
 .ul 0
 .SH SEE ALSO
-\fBkeyctl\fR(1), \fBrequest-key.conf\fR(5)
+\fBkeyctl\fR(1), \fBrequest\-key.conf\fR(5)

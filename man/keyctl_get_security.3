@@ -27,7 +27,7 @@ retrieves the security context of a key as a NUL-terminated string.  This will
 be rendered in a form appropriate to the LSM in force - for instance, with
 SELinux, it may look like
 .IP
-.B "unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023"
+.B "unconfined_u:unconfined_r:unconfined_t:s0\-s0:c0.c1023"
 .P
 The caller must have
 .B view
@@ -87,7 +87,7 @@ by the calling process.
 This is a library function that can be found in
 .IR libkeyutils .
 When linking,
-.B -lkeyutils
+.B \-lkeyutils
 should be specified to the linker.
 .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 .SH SEE ALSO

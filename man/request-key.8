@@ -11,7 +11,7 @@
 .SH NAME
 request\-key \- handle key instantiation callback requests from the kernel
 .SH SYNOPSIS
-\fB/sbin/request-key \fR<op> <key> <uid> <gid> <threadring> <processring>
+\fB/sbin/request\-key \fR<op> <key> <uid> <gid> <threadring> <processring>
 	<sessionring> [<info>]
 .SH DESCRIPTION
 This program is invoked by the kernel when the kernel is asked for a key that
@@ -22,12 +22,12 @@ to be called directly.
 All errors will be logged to the syslog.
 .SH FILES
 .ul
-/etc/request-key.conf
+/etc/request\-key.conf
 .ul 0
 Instantiation handler configuration file.
 .P
 .ul
-/etc/request-key.d/<keytype>.conf
+/etc/request\-key.d/<keytype>.conf
 .ul 0
 Keytype specific configuration file.
 .SH SEE ALSO
