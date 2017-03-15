@@ -1,5 +1,5 @@
 %define vermajor 1
-%define verminor 5.9
+%define verminor 5.10
 %define version %{vermajor}.%{verminor}
 %define libapivermajor 1
 %define libapiversion %{libapivermajor}.6
@@ -108,6 +108,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Wed Mar 15 2017 David Howells <dhowells@redhat.com> - 1.5.10-1
+- Include sys/types.h in keyutils.h.
+- The dns resolver needs limits.h.
+- Overhaul of all manual pages.
+- Some manual pages moved to Linux man-pages project.
+- Add Diffie-Helman keyctl function.
+
 * Fri Feb 21 2014 David Howells <dhowells@redhat.com> - 1.5.9-1
 - Add manpages for get_persistent.
 - Fix memory leaks in keyctl_describe/read/get_security_alloc().
