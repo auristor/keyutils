@@ -102,6 +102,15 @@ then
 fi
 
 #
+# Work out whether keyring restrictions are supported by the kernel
+#
+have_restrict_keyring=0
+if keyutils_at_or_later_than 1.6 && kernel_at_or_later_than 4.12-rc1
+then
+    have_restrict_keyring=1
+fi
+
+#
 # Check if skipping of tests requiring root was requested
 #
 skip_root_required=0

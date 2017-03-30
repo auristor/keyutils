@@ -839,6 +839,28 @@ function clear_keyring ()
 
 ###############################################################################
 #
+# restrict a keyring
+#
+###############################################################################
+function restrict_keyring ()
+{
+    my_exitval=0
+    if [ "x$1" = "x--fail" ]
+    then
+	my_exitval=1
+	shift
+    fi
+
+    echo keyctl restrict_keyring $1 $2 $3 >>$OUTPUTFILE
+    keyctl restrict_keyring $1 $2 $3 >>$OUTPUTFILE 2>&1
+    if [ $? != $my_exitval ]
+    then
+	failed
+    fi
+}
+
+###############################################################################
+#
 # link a key to a keyring
 #
 ###############################################################################
