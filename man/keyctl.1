@@ -41,6 +41,8 @@ keyctl \- key management facility control
 .br
 \fBkeyctl\fR search <keyring> <type> <desc> [<dest_keyring>]
 .br
+\fBkeyctl\fR restrict_keyring <keyring> [<type> [<restriction>]]
+.br
 \fBkeyctl\fR read <key>
 .br
 \fBkeyctl\fR pipe <key>
@@ -343,6 +345,20 @@ $ keyctl search @us user debug:hello
 $ keyctl search @us user debug:bye
 keyctl_search: Requested key not available
 .fi
+.RE
+.SS Restrict a keyring
+\fBkeyctl restrict_keyring\fR <keyring> [<type> [<restriction>]]
+
+This command limits the linkage of keys to the given keyring using a provided
+restriction scheme. The scheme is associated with a given key type, with
+further details provided in the restriction option string.  Options typically
+contain a restriction name possibly followed by key ids or other data relevant
+to the restriction. If no restriction scheme is provided, the keyring will
+reject all links.
+
+.RS
+.nf
+$ keyctl restrict_keyring $1 asymmetric builtin_trusted
 .RE
 .SS Read a key
 \fBkeyctl read\fR <key>
