@@ -67,6 +67,7 @@ static nr void act_keyctl_purge(int argc, char *argv[]);
 static nr void act_keyctl_invalidate(int argc, char *argv[]);
 static nr void act_keyctl_get_persistent(int argc, char *argv[]);
 static nr void act_keyctl_dh_compute(int argc, char *argv[]);
+static nr void act_keyctl_restrict_keyring(int argc, char *argv[]);
 
 const struct command commands[] = {
 	{ act_keyctl___version,	"--version",	"" },
@@ -99,6 +100,7 @@ const struct command commands[] = {
 	{ act_keyctl_reject,	"reject",	"<key> <timeout> <error> <keyring>" },
 	{ act_keyctl_request,	"request",	"<type> <desc> [<dest_keyring>]" },
 	{ act_keyctl_request2,	"request2",	"<type> <desc> <info> [<dest_keyring>]" },
+	{ act_keyctl_restrict_keyring, "restrict_keyring", "<keyring> [<type> [<restriction>]]" },
 	{ act_keyctl_revoke,	"revoke",	"<key>" },
 	{ act_keyctl_rlist,	"rlist",	"<keyring>" },
 	{ act_keyctl_search,	"search",	"<keyring> <type> <desc> [<dest_keyring>]" },
@@ -1674,6 +1676,35 @@ static void act_keyctl_dh_compute(int argc, char *argv[])
 	} while (--ret > 0);
 
 	printf("\n");
+	exit(0);
+}
+
+/*****************************************************************************/
+/*
+ * Restrict the keys that may be added to a keyring
+ */
+static void act_keyctl_restrict_keyring(int argc, char *argv[])
+{
+	key_serial_t keyring;
+	char *type = NULL;
+	char *restriction = NULL;
+	long ret;
+
+	if (argc < 2 || argc > 4)
+		format();
+
+	keyring = get_key_id(argv[1]);
+
+	if (argc > 2)
+		type = argv[2];
+
+	if (argc == 4)
+		restriction = argv[3];
+
+	ret = keyctl_restrict_keyring(keyring, type, restriction);
+	if (ret < 0)
+		error("keyctl_restrict_keyring");
+
 	exit(0);
 }
 

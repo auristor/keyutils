@@ -244,6 +244,12 @@ long keyctl_dh_compute(key_serial_t priv, key_serial_t prime,
 	return keyctl(KEYCTL_DH_COMPUTE, &params, buffer, buflen, 0);
 }
 
+long keyctl_restrict_keyring(key_serial_t keyring, const char *type,
+			     const char *restriction)
+{
+	return keyctl(KEYCTL_RESTRICT_KEYRING, keyring, type, restriction);
+}
+
 /*****************************************************************************/
 /*
  * fetch key description into an allocated buffer

@@ -70,5 +70,7 @@ KEYUTILS_1.6 {
 } KEYUTILS_1.5;
 
 KEYUTILS_1.7 {
+	/* management functions */
+	keyctl_restrict;
 
 } KEYUTILS_1.6;
