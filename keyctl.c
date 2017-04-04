@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <asm/unistd.h>
 #include "keyutils.h"
+#include <limits.h>
 
 struct command {
 	void (*action)(int argc, char *argv[]) __attribute__((noreturn));
@@ -67,6 +68,8 @@ static nr void act_keyctl_purge(int argc, char *argv[]);
 static nr void act_keyctl_invalidate(int argc, char *argv[]);
 static nr void act_keyctl_get_persistent(int argc, char *argv[]);
 static nr void act_keyctl_dh_compute(int argc, char *argv[]);
+static nr void act_keyctl_dh_compute_kdf(int argc, char *argv[]);
+static nr void act_keyctl_dh_compute_kdf_oi(int argc, char *argv[]);
 static nr void act_keyctl_restrict_keyring(int argc, char *argv[]);
 
 const struct command commands[] = {
@@ -77,6 +80,8 @@ const struct command commands[] = {
 	{ act_keyctl_clear,	"clear",	"<keyring>" },
 	{ act_keyctl_describe,	"describe",	"<keyring>" },
 	{ act_keyctl_dh_compute, "dh_compute",	"<private> <prime> <base>" },
+	{ act_keyctl_dh_compute_kdf, "dh_compute_kdf", "<private> <prime> <base> <len> <hash_name>" },
+	{ act_keyctl_dh_compute_kdf_oi, "dh_compute_kdf_oi", "<private> <prime> <base> <len> <hash_name>" },
 	{ act_keyctl_instantiate, "instantiate","<key> <data> <keyring>" },
 	{ act_keyctl_invalidate,"invalidate",	"<key>" },
 	{ act_keyctl_get_persistent, "get_persistent", "<keyring> [<uid>]" },
@@ -1665,6 +1670,7 @@ static void act_keyctl_dh_compute(int argc, char *argv[])
 		}
 
 		printf("%02hhx", *p);
+		*p = 0x00;	/* zeroize buffer */
 		p++;
 
 		col++;
@@ -1676,6 +1682,133 @@ static void act_keyctl_dh_compute(int argc, char *argv[])
 	} while (--ret > 0);
 
 	printf("\n");
+
+	free(buffer);
+
+	exit(0);
+}
+
+static void act_keyctl_dh_compute_kdf(int argc, char *argv[])
+{
+	key_serial_t private, prime, base;
+	char *buffer;
+	char *p;
+	int ret, sep, col;
+	unsigned long buflen = 0;
+
+	if (argc != 6)
+		format();
+
+	private = get_key_id(argv[1]);
+	prime = get_key_id(argv[2]);
+	base = get_key_id(argv[3]);
+
+	buflen = strtoul(argv[4], NULL, 10);
+	if (buflen == ULONG_MAX)
+		error("dh_compute: cannot convert generated length value");
+
+	buffer = malloc(buflen);
+	if (!buffer)
+		error("dh_compute: cannot allocate memory");
+
+	ret = keyctl_dh_compute_kdf(private, prime, base, argv[5], NULL,  0,
+				    buffer, buflen);
+	if (ret < 0)
+		error("keyctl_dh_compute_alloc");
+
+	/* hexdump the contents */
+	printf("%u bytes of data in result:\n", ret);
+
+	sep = 0;
+	col = 0;
+	p = buffer;
+
+	do {
+		if (sep) {
+			putchar(sep);
+			sep = 0;
+		}
+
+		printf("%02hhx", *p);
+		*p = 0x00;	/* zeroize buffer */
+		p++;
+
+		col++;
+		if (col % 32 == 0)
+			sep = '\n';
+		else if (col % 4 == 0)
+			sep = ' ';
+
+	} while (--ret > 0);
+
+	printf("\n");
+
+	free(buffer);
+
+	exit(0);
+}
+
+static void act_keyctl_dh_compute_kdf_oi(int argc, char *argv[])
+{
+	key_serial_t private, prime, base;
+	char *buffer;
+	char *p;
+	int ret, sep, col;
+	unsigned long buflen = 0;
+	size_t oilen;
+	void *oi;
+
+	if (argc != 6)
+		format();
+
+	private = get_key_id(argv[1]);
+	prime = get_key_id(argv[2]);
+	base = get_key_id(argv[3]);
+
+	buflen = strtoul(argv[4], NULL, 10);
+	if (buflen == ULONG_MAX)
+		error("dh_compute: cannot convert generated length value");
+
+	buffer = malloc(buflen);
+	if (!buffer)
+		error("dh_compute: cannot allocate memory");
+
+	oi = grab_stdin(&oilen);
+
+	ret = keyctl_dh_compute_kdf(private, prime, base, argv[5], oi,  oilen,
+				    buffer, buflen);
+	if (ret < 0)
+		error("keyctl_dh_compute_alloc");
+
+	/* hexdump the contents */
+	printf("%u bytes of data in result:\n", ret);
+
+	sep = 0;
+	col = 0;
+	p = buffer;
+
+	do {
+		if (sep) {
+			putchar(sep);
+			sep = 0;
+		}
+
+		printf("%02hhx", *p);
+		*p = 0x00;	/* zeroize buffer */
+		p++;
+
+		col++;
+		if (col % 32 == 0)
+			sep = '\n';
+		else if (col % 4 == 0)
+			sep = ' ';
+
+	} while (--ret > 0);
+
+	printf("\n");
+
+	free(buffer);
+
 	exit(0);
 }
 

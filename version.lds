@@ -72,5 +72,7 @@ KEYUTILS_1.6 {
 KEYUTILS_1.7 {
 	/* management functions */
 	keyctl_restrict;
+	keyctl_dh_compute_kdf;
+	keyctl_dh_compute_kdf_alloc;
 
 } KEYUTILS_1.6;

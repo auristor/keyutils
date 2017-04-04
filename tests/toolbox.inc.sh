@@ -1128,6 +1128,50 @@ function dh_compute ()
 
 ###############################################################################
 #
+# Do a DH computation post-processed by a KDF
+#
+###############################################################################
+function dh_compute_kdf ()
+{
+    my_exitval=0
+    if [ "x$1" = "x--fail" ]
+    then
+	my_exitval=1
+	shift
+    fi
+
+    echo keyctl dh_compute_kdf $@ >>$OUTPUTFILE
+    keyctl dh_compute_kdf $@ >>$OUTPUTFILE 2>&1
+    if [ $? != $my_exitval ]
+    then
+	failed
+    fi
+}
+
+###############################################################################
+#
+# Do a DH computation post-processed by a KDF with other information
+#
+###############################################################################
+function dh_compute_kdf_oi ()
+{
+    my_exitval=0
+    if [ "x$1" = "x--fail" ]
+    then
+	my_exitval=1
+	shift
+    fi
+
+    echo keyctl dh_compute_kdf_oi $@ >>$OUTPUTFILE
+    keyctl dh_compute_kdf_oi $@ >>$OUTPUTFILE 2>&1
+    if [ $? != $my_exitval ]
+    then
+	failed
+    fi
+}
+
+###############################################################################
+#
 # Make sure we sleep at least N seconds
 #
 ###############################################################################

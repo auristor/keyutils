@@ -94,6 +94,10 @@ keyctl \- key management facility control
 \fBkeyctl\fR get_persistent <keyring> [<uid>]
 .br
 \fBkeyctl\fR dh_compute <private> <prime> <base>
+.br
+\fBkeyctl\fR dh_compute_kdf <private> <prime> <base> <output_length> <hash_type>
+.br
+\fBkeyctl\fR dh_compute_kdf_oi <private> <prime> <base> <output_length> <hash_type>
 .SH DESCRIPTION
 This program is used to control the key management facility in various ways
 using a variety of subcommands.
@@ -718,6 +722,28 @@ The result is printed to stdout as a hex dump.
 $ keyctl dh_compute $1 $2 $3
 8 bytes of data in result:
 00010203 04050607
+.SS Compute a Diffie-Hellman shared secret and derive key material
+\fBkeyctl\fR dh_compute_kdf <private> <prime> <base> <output_length> <hash_type>
+
+This command computes a Diffie-Hellman shared secret and derives
+key material from the shared secret using a key derivation function (KDF).
+The shared secret is derived as outlined above and is input to the KDF
+using the specified hash type. The hash type must point to a hash name
+known to the kernel crypto API.
+
+The operation derves key material of the length specified by the caller.
+
+The operation is compliant to the specification of SP800-56A.
+
+The result is printed to stdout as hex dump.
+.SS Compute a Diffie-Hellman shared secret and apply KDF with other input
+\fBkeyctl\fR dh_compute_kdf_oi <private> <prime> <base> <output_length> <hash_type>
+
+This command is identical to the command
+.IR dh_compute_kdf
+to generate a Diffie-Hellman shared secret followed by a key derivation
+operation. This command allows the caller to provide the other input data
+(OI data) compliant to SP800-56A via stdin.
 .fi
 .RE
 .SH ERRORS

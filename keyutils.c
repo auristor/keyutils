@@ -244,6 +244,20 @@ long keyctl_dh_compute(key_serial_t priv, key_serial_t prime,
 	return keyctl(KEYCTL_DH_COMPUTE, &params, buffer, buflen, 0);
 }
 
+long keyctl_dh_compute_kdf(key_serial_t private, key_serial_t prime,
+			   key_serial_t base, char *hashname, char *otherinfo,
+			   size_t otherinfolen, char *buffer, size_t buflen)
+{
+	struct keyctl_dh_params params = { .priv = private,
+					   .prime = prime,
+					   .base = base };
+	struct keyctl_kdf_params kdfparams = { .hashname = hashname,
+					       .otherinfo = otherinfo,
+					       .otherinfolen = otherinfolen };
+
+	return keyctl(KEYCTL_DH_COMPUTE, &params, buffer, buflen, &kdfparams);
+}
+
 long keyctl_restrict_keyring(key_serial_t keyring, const char *type,
 			     const char *restriction)
 {

@@ -109,6 +109,13 @@ struct keyctl_dh_params {
 	key_serial_t base;
 };
 
+struct keyctl_kdf_params {
+	char *hashname;
+	char *otherinfo;
+	uint32_t otherinfolen;
+	uint32_t __spare[8];
+};
+
 /*
  * syscall wrappers
  */
@@ -164,6 +171,10 @@ extern long keyctl_invalidate(key_serial_t id);
 extern long keyctl_get_persistent(uid_t uid, key_serial_t id);
 extern long keyctl_dh_compute(key_serial_t priv, key_serial_t prime,
 			      key_serial_t base, char *buffer, size_t buflen);
+extern long keyctl_dh_compute_kdf(key_serial_t private, key_serial_t prime,
+				  key_serial_t base, char *hashname,
+				  char *otherinfo, size_t otherinfolen,
+				  char *buffer, size_t buflen);
 extern long keyctl_restrict_keyring(key_serial_t keyring, const char *type,
 				    const char *restriction);
 
