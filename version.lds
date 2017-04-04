@@ -68,3 +68,7 @@ KEYUTILS_1.6 {
 	keyctl_dh_compute_alloc;
 
 } KEYUTILS_1.5;
+
+KEYUTILS_1.7 {
+
+} KEYUTILS_1.6;
