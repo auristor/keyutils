@@ -171,6 +171,16 @@ marker "COMPUTE DERIVED KEY FROM DH SHARED SECRET (SHA-256)"
 echo -e -n $otherinfo | dh_compute_kdf_oi $privateid $primeid $xaid 16 "sha256"
 expect_multiline payload "$derived"
 
+pcreate_key "-e \x01" user dh:leadingzero @s
+expect_keyid lzid
+
+read -d '' derived2 <<"EOF"
+0066207b cdab1d64 bbf489b3 d6a0dadc
+EOF
+
+marker "COMPUTE DERIVED KEY WITH LEADING ZEROS"
+echo -e -n $otherinfo | dh_compute_kdf_oi $privateid $primeid $lzid 16 "sha256"
+expect_multiline payload "$derived2"
 
 # SHA-224
 
