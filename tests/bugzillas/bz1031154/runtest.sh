@@ -20,6 +20,7 @@ then
     exit 0
 fi
 
+require_selinux
 require_command getenforce
 require_command setenforce
 require_command runcon

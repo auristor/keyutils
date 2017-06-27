@@ -115,6 +115,15 @@ function require_command ()
     fi
 }
 
+function require_selinux ()
+{
+    if ! grep -q selinuxfs /proc/mounts;
+    then
+	toolbox_skip_test $TEST "SKIP DUE TO DISABLED SELINUX"
+	exit 0
+    fi
+}
+
 ###############################################################################
 #
 # extract an error message from the log file and check it
