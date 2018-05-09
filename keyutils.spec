@@ -19,7 +19,9 @@ Source0: http://people.redhat.com/~dhowells/keyutils/keyutils-%{version}.tar.bz2
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: glibc-kernheaders >= 2.4-9.1.92
+BuildRequires: krb5-devel
 Requires: keyutils-libs == %{version}-%{release}
+Requires: krb5-libs
 
 %description
 Utilities to control the kernel key management facility and to provide

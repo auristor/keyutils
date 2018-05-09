@@ -151,8 +151,12 @@ keyctl: keyctl.o $(LIB_DEPENDENCY)
 request-key: request-key.o $(LIB_DEPENDENCY)
 	$(CC) -L. $(CFLAGS) $(LDFLAGS) $(RPATH) -o $@ $< -lkeyutils
 
-key.dns_resolver: key.dns_resolver.o $(LIB_DEPENDENCY)
-	$(CC) -L. $(CFLAGS) $(LDFLAGS) $(RPATH) -o $@ $< -lkeyutils -lresolv
+key.dns_resolver: key.dns_resolver.o dns.afsdb.o $(LIB_DEPENDENCY)
+	$(CC) -L. $(CFLAGS) $(LDFLAGS) $(RPATH) -o $@ \
+		key.dns_resolver.o dns.afsdb.o -lkrb5 -lcom_err -lkeyutils -lresolv
+
+key.dns_resolver.o: key.dns_resolver.c key.dns.h
+dns.afsdb.o: dns.afsdb.c key.dns.h
 
 ###############################################################################
 #

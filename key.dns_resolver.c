@@ -38,25 +38,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#define _GNU_SOURCE
-#include <netinet/in.h>
-#include <arpa/nameser.h>
-#include <arpa/inet.h>
-#include <limits.h>
-#include <resolv.h>
-#include <getopt.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <syslog.h>
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <keyutils.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
+#include "key.dns.h"
 
 static const char *DNS_PARSE_VERSION = "1.0";
 static const char prog[] = "key.dns_resolver";
@@ -64,21 +46,15 @@ static const char key_type[] = "dns_resolver";
 static const char a_query_type[] = "a";
 static const char aaaa_query_type[] = "aaaa";
 static const char afsdb_query_type[] = "afsdb";
-static key_serial_t key;
+key_serial_t key;
 static int verbose;
-static int debug_mode;
+int debug_mode;
+unsigned mask = INET_ALL;
 
-
-#define	MAX_VLS			15	/* Max Volume Location Servers Per-Cell */
-#define	INET_IP4_ONLY		0x1
-#define	INET_IP6_ONLY		0x2
-#define	INET_ALL		0xFF
-#define ONE_ADDR_ONLY		0x100
 
 /*
  * segmental payload
  */
-#define N_PAYLOAD 256
 struct iovec payload[N_PAYLOAD];
 int payload_index;
 
@@ -86,7 +62,6 @@ int payload_index;
  * Print an error to stderr or the syslog, negate the key being created and
  * exit
  */
-static __attribute__((format(printf, 1, 2), noreturn))
 void error(const char *fmt, ...)
 {
 	va_list va;
@@ -116,7 +91,6 @@ void error(const char *fmt, ...)
 /*
  * Just print an error to stderr or the syslog
  */
-static __attribute__((format(printf, 1, 2)))
 void _error(const char *fmt, ...)
 {
 	va_list va;
@@ -134,7 +108,6 @@ void _error(const char *fmt, ...)
 /*
  * Print status information
  */
-static __attribute__((format(printf, 1, 2)))
 void info(const char *fmt, ...)
 {
 	va_list va;
@@ -164,14 +137,10 @@ static const int ns_errno_map[] = {
 	[NO_DATA]		= ENODATA,
 };
 
-static __attribute__((noreturn))
-void nsError(int err, const char *domain)
+void _nsError(int err, const char *domain)
 {
-	unsigned timeout = 1 * 60;
-	int ret;
-
 	if (isatty(2))
-		fprintf(stderr, "%s: %s.\n", domain, hstrerror(err));
+		fprintf(stderr, "NS:%s: %s.\n", domain, hstrerror(err));
 	else
 		syslog(LOG_INFO, "%s: %s", domain, hstrerror(err));
 
@@ -181,11 +150,27 @@ void nsError(int err, const char *domain)
 		err = ns_errno_map[err];
 
 	info("Reject the key with error %d", err);
+}
 
-	if (err == EAGAIN)
+void nsError(int err, const char *domain)
+{
+	unsigned timeout;
+	int ret;
+
+	_nsError(err, domain);
+
+	switch (err) {
+	case TRY_AGAIN:
 		timeout = 1;
-	else if (err == ECONNREFUSED)
+		break;
+	case 0:
+	case NO_RECOVERY:
 		timeout = 10;
+		break;
+	default:
+		timeout = 1 * 60;
+		break;
+	}
 
 	if (!debug_mode) {
 		ret = keyctl_reject(key, timeout, err, KEY_REQKEY_DEFL_DEFAULT);
@@ -198,7 +183,6 @@ void nsError(int err, const char *domain)
 /*
  * Print debugging information
  */
-static __attribute__((format(printf, 1, 2)))
 void debug(const char *fmt, ...)
 {
 	va_list va;
@@ -220,7 +204,7 @@ void debug(const char *fmt, ...)
 /*
  * Append an address to the payload segment list
  */
-static void append_address_to_payload(const char *addr)
+void append_address_to_payload(const char *addr)
 {
 	size_t sz = strlen(addr);
 	char *copy;
@@ -253,7 +237,7 @@ static void append_address_to_payload(const char *addr)
 /*
  * Dump the payload when debugging
  */
-static void dump_payload(void)
+void dump_payload(void)
 {
 	size_t plen, n;
 	char *buf, *p;
@@ -295,11 +279,10 @@ static void dump_payload(void)
  * Perform address resolution on a hostname and add the resulting address as a
  * string to the list of payload segments.
  */
-static int
-dns_resolver(const char *server_name, unsigned mask)
+int dns_resolver(const char *server_name, const char *port)
 {
 	struct addrinfo hints, *addr, *ai;
-	char buf[INET6_ADDRSTRLEN + 1];
+	char buf[INET6_ADDRSTRLEN + 8 + 1];
 	int ret, len;
 	void *sa;
 
@@ -319,8 +302,6 @@ dns_resolver(const char *server_name, unsigned mask)
 		     server_name, gai_strerror(ret));
 		return -1;
 	}
-
-	debug("getaddrinfo = %d", ret);
 
 	for (ai = addr; ai; ai = ai->ai_next) {
 		debug("RR: %x,%x,%x,%x,%x,%s",
@@ -350,6 +331,8 @@ dns_resolver(const char *server_name, unsigned mask)
 		if (!inet_ntop(ai->ai_family, sa, buf, len))
 			error("%s: inet_ntop: %m", __func__);
 
+		if (port)
+			strcat(buf, port);
 		append_address_to_payload(buf);
 		if (mask & ONE_ADDR_ONLY)
 			break;
@@ -357,160 +340,6 @@ dns_resolver(const char *server_name, unsigned mask)
 
 	freeaddrinfo(addr);
 	return 0;
-}
-
-/*
- *
- */
-static void afsdb_hosts_to_addrs(ns_msg handle,
-				 ns_sect section,
-				 unsigned mask,
-				 unsigned long *_ttl)
-{
-	char *vllist[MAX_VLS];	/* list of name servers	*/
-	int vlsnum = 0;		/* number of name servers in list */
-	int rrnum;
-	ns_rr rr;
-	int subtype, i, ret;
-	unsigned int ttl = UINT_MAX, rr_ttl;
-
-	debug("AFSDB RR count is %d", ns_msg_count(handle, section));
-
-	/* Look at all the resource records in this section. */
-	for (rrnum = 0; rrnum < ns_msg_count(handle, section); rrnum++) {
-		/* Expand the resource record number rrnum into rr. */
-		if (ns_parserr(&handle, section, rrnum, &rr)) {
-			_error("ns_parserr failed : %m");
-			continue;
-		}
-
-		/* We're only interested in AFSDB records */
-		if (ns_rr_type(rr) == ns_t_afsdb) {
-			vllist[vlsnum] = malloc(MAXDNAME);
-			if (!vllist[vlsnum])
-				error("Out of memory");
-
-			subtype = ns_get16(ns_rr_rdata(rr));
-
-			/* Expand the name server's domain name */
-			if (ns_name_uncompress(ns_msg_base(handle),
-					       ns_msg_end(handle),
-					       ns_rr_rdata(rr) + 2,
-					       vllist[vlsnum],
-					       MAXDNAME) < 0)
-				error("ns_name_uncompress failed");
-
-			rr_ttl = ns_rr_ttl(rr);
-			if (ttl > rr_ttl)
-				ttl = rr_ttl;
-
-			/* Check the domain name we've just unpacked and add it to
-			 * the list of VL servers if it is not a duplicate.
-			 * If it is a duplicate, just ignore it.
-			 */
-			for (i = 0; i < vlsnum; i++)
-				if (strcasecmp(vllist[i], vllist[vlsnum]) == 0)
-					goto next_one;
-
-			/* Turn the hostname into IP addresses */
-			ret = dns_resolver(vllist[vlsnum], mask);
-			if (ret) {
-				debug("AFSDB RR can't resolve."
-				      "subtype:%d, server name:%s, netmask:%u",
-				      subtype, vllist[vlsnum], mask);
-				goto next_one;
-			}
-
-			info("AFSDB RR subtype:%d, server name:%s, ip:%*.*s, ttl:%u",
-			     subtype, vllist[vlsnum],
-			     (int)payload[payload_index - 1].iov_len,
-			     (int)payload[payload_index - 1].iov_len,
-			     (char *)payload[payload_index - 1].iov_base,
-			     ttl);
-
-			/* prepare for the next record */
-			vlsnum++;
-			continue;
-
-		next_one:
-			free(vllist[vlsnum]);
-		}
-	}
-
-	*_ttl = ttl;
-	info("ttl: %u", ttl);
-}
-
-/*
- * Look up an AFSDB record to get the VL server addresses.
- *
- * The callout_info is parsed for request options.  For instance, "ipv4" to
- * request only IPv4 addresses and "ipv6" to request only IPv6 addresses.
- */
-static __attribute__((noreturn))
-int dns_query_afsdb(const char *cell, char *options)
-{
-	int	ret;
-	unsigned mask = INET_ALL;
-	int	response_len;		/* buffer length */
-	ns_msg	handle;			/* handle for response message */
-	unsigned long ttl = ULONG_MAX;
-	union {
-		HEADER hdr;
-		u_char buf[NS_PACKETSZ];
-	} response;		/* response buffers */
-
-	debug("Get AFSDB RR for cell name:'%s', options:'%s'", cell, options);
-
-	/* query the dns for an AFSDB resource record */
-	response_len = res_query(cell,
-				 ns_c_in,
-				 ns_t_afsdb,
-				 response.buf,
-				 sizeof(response));
-
-	if (response_len < 0)
-		/* negative result */
-		nsError(h_errno, cell);
-
-	if (ns_initparse(response.buf, response_len, &handle) < 0)
-		error("ns_initparse: %m");
-
-	/* Is the IP address family limited? */
-	if (strcmp(options, "ipv4") == 0)
-		mask = INET_IP4_ONLY;
-	else if (strcmp(options, "ipv6") == 0)
-		mask = INET_IP6_ONLY;
-
-	/* look up the hostnames we've obtained to get the actual addresses */
-	afsdb_hosts_to_addrs(handle, ns_s_an, mask, &ttl);
-
-	info("DNS query AFSDB RR results:%u ttl:%lu", payload_index, ttl);
-
-	/* set the key's expiry time from the minimum TTL encountered */
-	if (!debug_mode) {
-		ret = keyctl_set_timeout(key, ttl);
-		if (ret == -1)
-			error("%s: keyctl_set_timeout: %m", __func__);
-	}
-
-	/* handle a lack of results */
-	if (payload_index == 0)
-		nsError(NO_DATA, cell);
-
-	/* must include a NUL char at the end of the payload */
-	payload[payload_index].iov_base = "";
-	payload[payload_index++].iov_len = 1;
-	dump_payload();
-
-	/* load the key with data key */
-	if (!debug_mode) {
-		ret = keyctl_instantiate_iov(key, payload, payload_index, 0);
-		if (ret == -1)
-			error("%s: keyctl_instantiate: %m", __func__);
-	}
-
-	exit(0);
 }
 
 /*
@@ -523,7 +352,6 @@ int dns_query_afsdb(const char *cell, char *options)
 static __attribute__((noreturn))
 int dns_query_a_or_aaaa(const char *hostname, char *options)
 {
-	unsigned mask;
 	int ret;
 
 	debug("Get A/AAAA RR for hostname:'%s', options:'%s'",
@@ -569,7 +397,7 @@ int dns_query_a_or_aaaa(const char *hostname, char *options)
 	}
 
 	/* Turn the hostname into IP addresses */
-	ret = dns_resolver(hostname, mask);
+	ret = dns_resolver(hostname, NULL);
 	if (ret)
 		nsError(NO_DATA, hostname);
 
@@ -630,7 +458,7 @@ int main(int argc, char *argv[])
 
 	openlog(prog, 0, LOG_DAEMON);
 
-	while ((ret = getopt_long(argc, argv, "vD", long_options, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "vDV", long_options, NULL)) != -1) {
 		switch (ret) {
 		case 'D':
 			debug_mode = 1;
@@ -713,6 +541,8 @@ int main(int argc, char *argv[])
 	qtlen = name - keyend;
 	name++;
 
+	info("Query type: '%*.*s'", qtlen, qtlen, keyend);
+	
 	if ((qtlen == sizeof(a_query_type) - 1 &&
 	     memcmp(keyend, a_query_type, sizeof(a_query_type) - 1) == 0) ||
 	    (qtlen == sizeof(aaaa_query_type) - 1 &&
@@ -726,9 +556,9 @@ int main(int argc, char *argv[])
 	if (qtlen == sizeof(afsdb_query_type) - 1 &&
 	    memcmp(keyend, afsdb_query_type, sizeof(afsdb_query_type) - 1) == 0
 	    ) {
-		info("Do DNS query of AFSDB type for:'%s' mask:'%s'",
+		info("Do AFS VL server query for:'%s' mask:'%s'",
 		     name, callout_info);
-		dns_query_afsdb(name, callout_info);
+		afs_look_up_VL_servers(name, callout_info);
 	}
 
 	error("Query type: \"%*.*s\" is not supported", qtlen, qtlen, keyend);
