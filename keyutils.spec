@@ -1,5 +1,5 @@
 %define vermajor 1
-%define verminor 5.10
+%define verminor 5.11
 %define version %{vermajor}.%{verminor}
 %define libapivermajor 1
 %define libapiversion %{libapivermajor}.7
@@ -114,6 +114,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Wed May 9 2018 David Howells <dhowells@redhat.com> - 1.5.11-1
+- Add keyring restriction support.
+- Add KDF support to the Diffie-Helman function.
+- DNS: Add support for AFS config files and SRV records
+
 * Wed Mar 15 2017 David Howells <dhowells@redhat.com> - 1.5.10-1
 - Include sys/types.h in keyutils.h.
 - The dns resolver needs limits.h.
