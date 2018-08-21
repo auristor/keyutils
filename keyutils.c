@@ -264,6 +264,69 @@ long keyctl_restrict_keyring(key_serial_t keyring, const char *type,
 	return keyctl(KEYCTL_RESTRICT_KEYRING, keyring, type, restriction);
 }
 
+long keyctl_pkey_query(key_serial_t key_id,
+		       const char *info,
+		       struct keyctl_pkey_query *result)
+{
+	return keyctl(KEYCTL_PKEY_QUERY, key_id, 0, info, result);
+}
+
+long keyctl_pkey_encrypt(key_serial_t key_id,
+			 const char *info,
+			 const void *data, size_t data_len,
+			 void *enc, size_t enc_len)
+{
+	struct keyctl_pkey_params params = {
+		.key_id		= key_id,
+		.in_len		= data_len,
+		.out_len	= enc_len,
+	};
+
+	return keyctl(KEYCTL_PKEY_ENCRYPT, &params, info, data, enc);
+}
+
+long keyctl_pkey_decrypt(key_serial_t key_id,
+			 const char *info,
+			 const void *enc, size_t enc_len,
+			 void *data, size_t data_len)
+{
+	struct keyctl_pkey_params params = {
+		.key_id		= key_id,
+		.in_len		= enc_len,
+		.out_len	= data_len,
+	};
+
+	return keyctl(KEYCTL_PKEY_DECRYPT, &params, info, enc, data);
+}
+
+long keyctl_pkey_sign(key_serial_t key_id,
+		      const char *info,
+		      const void *data, size_t data_len,
+		      void *sig, size_t sig_len)
+{
+	struct keyctl_pkey_params params = {
+		.key_id		= key_id,
+		.in_len		= data_len,
+		.out_len	= sig_len,
+	};
+
+	return keyctl(KEYCTL_PKEY_SIGN, &params, info, data, sig);
+}
+
+long keyctl_pkey_verify(key_serial_t key_id,
+			const char *info,
+			const void *data, size_t data_len,
+			const void *sig, size_t sig_len)
+{
+	struct keyctl_pkey_params params = {
+		.key_id		= key_id,
+		.in_len		= data_len,
+		.in2_len	= sig_len,
+	};
+
+	return keyctl(KEYCTL_PKEY_VERIFY, &params, info, data, sig);
+}
+
 /*****************************************************************************/
 /*
  * fetch key description into an allocated buffer

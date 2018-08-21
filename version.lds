@@ -66,6 +66,11 @@ KEYUTILS_1.6 {
 	/* management functions */
 	keyctl_dh_compute;
 	keyctl_dh_compute_alloc;
+	keyctl_pkey_query;
+	keyctl_pkey_encrypt;
+	keyctl_pkey_decrypt;
+	keyctl_pkey_sign;
+	keyctl_pkey_verify;
 
 } KEYUTILS_1.5;
 

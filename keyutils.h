@@ -100,6 +100,11 @@ typedef uint32_t key_perm_t;
 #define KEYCTL_INVALIDATE		21	/* invalidate a key */
 #define KEYCTL_GET_PERSISTENT		22	/* get a user's persistent keyring */
 #define KEYCTL_DH_COMPUTE		23	/* Compute Diffie-Hellman values */
+#define KEYCTL_PKEY_QUERY		24	/* Query public key parameters */
+#define KEYCTL_PKEY_ENCRYPT		25	/* Encrypt a blob using a public key */
+#define KEYCTL_PKEY_DECRYPT		26	/* Decrypt a blob using a public key */
+#define KEYCTL_PKEY_SIGN		27	/* Create a public key signature */
+#define KEYCTL_PKEY_VERIFY		28	/* Verify a public key signature */
 #define KEYCTL_RESTRICT_KEYRING		29	/* Restrict keys allowed to link to a keyring */
 
 /* keyctl structures */
@@ -114,6 +119,31 @@ struct keyctl_kdf_params {
 	char *otherinfo;
 	uint32_t otherinfolen;
 	uint32_t __spare[8];
+};
+
+#define KEYCTL_SUPPORTS_ENCRYPT		0x01
+#define KEYCTL_SUPPORTS_DECRYPT		0x02
+#define KEYCTL_SUPPORTS_SIGN		0x04
+#define KEYCTL_SUPPORTS_VERIFY		0x08
+
+struct keyctl_pkey_query {
+	unsigned int	supported_ops;	/* Which ops are supported */
+	unsigned int	key_size;	/* Size of the key in bits */
+	unsigned short	max_data_size;	/* Maximum size of raw data to sign in bytes */
+	unsigned short	max_sig_size;	/* Maximum size of signature in bytes */
+	unsigned short	max_enc_size;	/* Maximum size of encrypted blob in bytes */
+	unsigned short	max_dec_size;	/* Maximum size of decrypted blob in bytes */
+	unsigned int	__spare[10];
+};
+
+struct keyctl_pkey_params {
+	key_serial_t	key_id;		/* Serial no. of public key to use */
+	unsigned int	in_len;		/* Input data size */
+	union {
+		unsigned int	out_len; /* Output buffer size (encrypt/decrypt/sign) */
+		unsigned int	in2_len; /* Second input data size (verify) */
+	};
+	unsigned int	__spare[7];
 };
 
 /*
@@ -177,6 +207,26 @@ extern long keyctl_dh_compute_kdf(key_serial_t private, key_serial_t prime,
 				  char *buffer, size_t buflen);
 extern long keyctl_restrict_keyring(key_serial_t keyring, const char *type,
 				    const char *restriction);
+
+extern long keyctl_pkey_query(key_serial_t key_id,
+			      const char *info,
+			      struct keyctl_pkey_query *result);
+extern long keyctl_pkey_encrypt(key_serial_t key_id,
+				const char *info,
+				const void *data, size_t data_len,
+				void *enc, size_t enc_len);
+extern long keyctl_pkey_decrypt(key_serial_t key_id,
+				const char *info,
+				const void *enc, size_t enc_len,
+				void *data, size_t data_len);
+extern long keyctl_pkey_sign(key_serial_t key_id,
+			     const char *info,
+			     const void *data, size_t data_len,
+			     void *sig, size_t sig_len);
+extern long keyctl_pkey_verify(key_serial_t key_id,
+			       const char *info,
+			       const void *data, size_t data_len,
+			       const void *sig, size_t sig_len);
 
 /*
  * utilities
