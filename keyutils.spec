@@ -6,21 +6,19 @@
 
 # % define buildid .local
 
-Summary: Linux Key Management Utilities
-Name: keyutils
+Name:    keyutils
 Version: %{version}
 Release: 1%{?buildid}%{?dist}
+Summary: Linux Key Management Utilities
 License: GPLv2+ and LGPLv2+
-Group: System Environment/Base
-ExclusiveOS: Linux
-Url: http://people.redhat.com/~dhowells/keyutils/
+Url:     http://people.redhat.com/~dhowells/keyutils/
 
 Source0: http://people.redhat.com/~dhowells/keyutils/keyutils-%{version}.tar.bz2
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: gcc
 BuildRequires: glibc-kernheaders >= 2.4-9.1.92
 BuildRequires: krb5-devel
-Requires: keyutils-libs == %{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: krb5-libs
 
 %description
@@ -30,7 +28,6 @@ instantiated.
 
 %package libs
 Summary: Key utilities library
-Group: System Environment/Base
 
 %description libs
 This package provides a wrapper library for the key management facility system
@@ -38,8 +35,7 @@ calls.
 
 %package libs-devel
 Summary: Development package for building Linux key management utilities
-Group: System Environment/Base
-Requires: keyutils-libs == %{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description libs-devel
 This package provides headers and libraries for building key utilities.
@@ -66,7 +62,6 @@ make \
 	LDFLAGS="%{?__global_ldflags}"
 
 %install
-rm -rf $RPM_BUILD_ROOT
 make \
 	NO_ARLIB=1 \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -80,16 +75,10 @@ make \
 	SHAREDIR=%{datadir} \
 	install
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-%post libs -p /sbin/ldconfig
-%postun libs -p /sbin/ldconfig
+%ldconfig_scriptlets libs
 
 %files
-%defattr(-,root,root,-)
 %doc README
-%{!?_licensedir:%global license %%doc}
 %license LICENCE.GPL
 %{_sbindir}/*
 %{_bindir}/*
@@ -100,15 +89,12 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/*
 
 %files libs
-%defattr(-,root,root,-)
-%{!?_licensedir:%global license %%doc}
 %license LICENCE.LGPL
 %{_mandir}/man7/*
 %{_libdir}/libkeyutils.so.%{libapiversion}
 %{_libdir}/libkeyutils.so.%{libapivermajor}
 
 %files libs-devel
-%defattr(-,root,root,-)
 %{_libdir}/libkeyutils.so
 %{_includedir}/*
 %{_mandir}/man3/*
@@ -133,7 +119,7 @@ rm -rf $RPM_BUILD_ROOT
 - Exit rather than returning from act_xxx() functions.
 - Fix memory leak in dump_key_tree_aux.
 - Only get the groups list if we need it.
-- Don't trust sscanf's %n argument.
+- Don't trust sscanf's %%n argument.
 - Use the correct path macros in the specfile.
 - Avoid use realloc when the memory has no content.
 - Fix a bunch of issues in key.dns_resolver.
