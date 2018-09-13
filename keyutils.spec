@@ -17,9 +17,7 @@ Source0: http://people.redhat.com/~dhowells/keyutils/keyutils-%{version}.tar.bz2
 
 BuildRequires: gcc
 BuildRequires: glibc-kernheaders >= 2.4-9.1.92
-BuildRequires: krb5-devel
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-Requires: krb5-libs
 
 %description
 Utilities to control the kernel key management facility and to provide
