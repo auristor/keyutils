@@ -1997,7 +1997,7 @@ static int dump_key_tree_aux(key_serial_t key, int depth, int more, int hex_key_
 		do {
 			key = *pk++;
 
-			/* recurse into nexted keyrings */
+			/* recurse into next keyrings */
 			if (strcmp(type, "keyring") == 0) {
 				if (depth == 0) {
 					rdepth = depth;

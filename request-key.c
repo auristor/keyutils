@@ -13,7 +13,7 @@
  * Searches the specified session ring for a key indicating the command to run:
  *	type:	"user"
  *	desc:	"request-key:<op>"
- *	data:	command name, eg: "/home/dhowells/request-key-create.sh"
+ *	data:	command name, e.g.: "/home/dhowells/request-key-create.sh"
  */
 
 #include <stdio.h>

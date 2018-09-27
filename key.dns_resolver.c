@@ -13,7 +13,7 @@
  *
  * 	cc -o key.dns_resolver key.dns_resolver.c -lresolv -lkeyutils
  *
- * As some function like res_init() should use the static liberary, which is a
+ * As some function like res_init() should use the static library, which is a
  * bug of libresolv, that is the reason for cifs.upcall to reimplement.
  *
  * To use this program, you must tell /sbin/request-key how to invoke it.  You
