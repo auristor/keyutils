@@ -953,7 +953,7 @@ static void act_keyctl_describe(int argc, char *argv[])
 	/* get key description */
 	ret = keyctl_describe_alloc(key, &buffer);
 	if (ret < 0)
-		error("keyctl_describe");
+		error("keyctl_describe_alloc");
 
 	/* parse it */
 	uid = 0;
@@ -1714,7 +1714,7 @@ static void act_keyctl_dh_compute_kdf(int argc, char *argv[])
 	ret = keyctl_dh_compute_kdf(private, prime, base, argv[5], NULL,  0,
 				    buffer, buflen);
 	if (ret < 0)
-		error("keyctl_dh_compute_alloc");
+		error("keyctl_dh_compute_kdf");
 
 	/* hexdump the contents */
 	printf("%u bytes of data in result:\n", ret);
@@ -1778,7 +1778,7 @@ static void act_keyctl_dh_compute_kdf_oi(int argc, char *argv[])
 	ret = keyctl_dh_compute_kdf(private, prime, base, argv[5], oi,  oilen,
 				    buffer, buflen);
 	if (ret < 0)
-		error("keyctl_dh_compute_alloc");
+		error("keyctl_dh_compute_kdf");
 
 	/* hexdump the contents */
 	printf("%u bytes of data in result:\n", ret);
