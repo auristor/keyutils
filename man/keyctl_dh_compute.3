@@ -89,7 +89,9 @@ specifies the Linux kernel crypto API name for a hash that shall be used
 for the key derivation function, such as sha256.
 The
 .I hashname
-must be a NULL terminated string.
+must be a NULL terminated string.  See
+.I /proc/crypto
+for available hashes on the system.
 .P
 Following the specification of SP800-56A section 5.8.1.2 the
 .I otherinfo
