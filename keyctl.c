@@ -16,8 +16,10 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <ctype.h>
 #include <errno.h>
+#include <sys/stat.h>
 #include <asm/unistd.h>
 #include "keyutils.h"
 #include <limits.h>
@@ -71,6 +73,11 @@ static nr void act_keyctl_dh_compute(int argc, char *argv[]);
 static nr void act_keyctl_dh_compute_kdf(int argc, char *argv[]);
 static nr void act_keyctl_dh_compute_kdf_oi(int argc, char *argv[]);
 static nr void act_keyctl_restrict_keyring(int argc, char *argv[]);
+static nr void act_keyctl_pkey_query(int argc, char *argv[]);
+static nr void act_keyctl_pkey_encrypt(int argc, char *argv[]);
+static nr void act_keyctl_pkey_decrypt(int argc, char *argv[]);
+static nr void act_keyctl_pkey_sign(int argc, char *argv[]);
+static nr void act_keyctl_pkey_verify(int argc, char *argv[]);
 
 const struct command commands[] = {
 	{ act_keyctl___version,	"--version",	"" },
@@ -93,6 +100,11 @@ const struct command commands[] = {
 	{ act_keyctl_padd,	"padd",		"<type> <desc> <keyring>" },
 	{ act_keyctl_pinstantiate, "pinstantiate","<key> <keyring>" },
 	{ act_keyctl_pipe,	"pipe",		"<key>" },
+	{ act_keyctl_pkey_query, "pkey_query",	"<key> <pass> [k=v]*" },
+	{ act_keyctl_pkey_encrypt, "pkey_encrypt", "<key> <pass> <datafile> [k=v]*" },
+	{ act_keyctl_pkey_decrypt, "pkey_decrypt", "<key> <pass> <datafile> [k=v]*" },
+	{ act_keyctl_pkey_sign, "pkey_sign",	"<key> <pass> <datafile> [k=v]*" },
+	{ act_keyctl_pkey_verify, "pkey_verify", "<key> <pass> <datafile> <sigfile> [k=v]*" },
 	{ act_keyctl_prequest2,	"prequest2",	"<type> <desc> [<dest_keyring>]" },
 	{ act_keyctl_print,	"print",	"<key>" },
 	{ act_keyctl_pupdate,	"pupdate",	"<key>" },
@@ -125,6 +137,7 @@ static int dump_key_tree(key_serial_t keyring, const char *name, int hex_key_IDs
 static void format(void) __attribute__((noreturn));
 static void error(const char *msg) __attribute__((noreturn));
 static key_serial_t get_key_id(char *arg);
+static void *read_file(const char *name, size_t *_size);
 
 static uid_t myuid;
 static gid_t mygid, *mygroups;
@@ -1841,6 +1854,219 @@ static void act_keyctl_restrict_keyring(int argc, char *argv[])
 	exit(0);
 }
 
+/*
+ * Parse public key operation info arguments.
+ */
+static void pkey_parse_info(char **argv, char info[4096])
+{
+	int i_len = 0;
+
+	/* A number of key=val pairs can be provided after the main arguments
+	 * to inform the kernel of things like encoding type and hash function.
+	 */
+	for (; *argv; argv++) {
+		int n = strlen(argv[0]);
+
+		if (!memchr(argv[0], '=', n)) {
+			fprintf(stderr, "Option not in key=val form\n");
+			exit(2);
+		}
+		if (n + 1 > 4096 - 1 - i_len) {
+			fprintf(stderr, "Too many info options\n");
+			exit(2);
+		}
+
+		if (i_len > 0)
+			info[i_len++] = ' ';
+		memcpy(info + i_len, argv[0], n);
+		i_len += n;
+	}
+
+	info[i_len] = 0;
+}
+
+/*
+ * Query a public key.
+ */
+static void act_keyctl_pkey_query(int argc, char *argv[])
+{
+	struct keyctl_pkey_query result;
+	key_serial_t key;
+	char info[4096];
+
+	if (argc < 3)
+		format();
+	pkey_parse_info(argv + 2, info);
+
+	key = get_key_id(argv[1]);
+	if (strcmp(argv[2], "0") != 0) {
+		fprintf(stderr, "Password passing is not yet supported\n");
+		exit(2);
+	}
+
+	if (keyctl_pkey_query(key, info, &result) < 0)
+		error("keyctl_pkey_query");
+
+	printf("key_size=%u\n", result.key_size);
+	printf("max_data_size=%u\n", result.max_data_size);
+	printf("max_sig_size=%u\n", result.max_sig_size);
+	printf("max_enc_size=%u\n", result.max_enc_size);
+	printf("max_dec_size=%u\n", result.max_dec_size);
+	printf("encrypt=%c\n", result.supported_ops & KEYCTL_SUPPORTS_ENCRYPT ? 'y' : 'n');
+	printf("decrypt=%c\n", result.supported_ops & KEYCTL_SUPPORTS_DECRYPT ? 'y' : 'n');
+	printf("sign=%c\n",    result.supported_ops & KEYCTL_SUPPORTS_SIGN    ? 'y' : 'n');
+	printf("verify=%c\n",  result.supported_ops & KEYCTL_SUPPORTS_VERIFY  ? 'y' : 'n');
+	exit(0);
+}
+
+/*
+ * Encrypt a blob.
+ */
+static void act_keyctl_pkey_encrypt(int argc, char *argv[])
+{
+	struct keyctl_pkey_query result;
+	key_serial_t key;
+	size_t in_len;
+	long out_len;
+	void *in, *out;
+	char info[4096];
+
+	if (argc < 5)
+		format();
+	pkey_parse_info(argv + 4, info);
+
+	key = get_key_id(argv[1]);
+	if (strcmp(argv[2], "0") != 0) {
+		fprintf(stderr, "Password passing is not yet supported\n");
+		exit(2);
+	}
+	in = read_file(argv[3], &in_len);
+
+	if (keyctl_pkey_query(key, info, &result) < 0)
+		error("keyctl_pkey_query");
+
+	out = malloc(result.max_dec_size);
+	if (!out)
+		error("malloc");
+
+	out_len = keyctl_pkey_encrypt(key, info,
+				      in, in_len, out, result.max_dec_size);
+	if (out_len < 0)
+		error("keyctl_pkey_encrypt");
+
+	if (fwrite(out, out_len, 1, stdout) != 1)
+		error("stdout");
+	exit(0);
+}
+
+/*
+ * Decrypt a blob.
+ */
+static void act_keyctl_pkey_decrypt(int argc, char *argv[])
+{
+	struct keyctl_pkey_query result;
+	key_serial_t key;
+	size_t in_len;
+	long out_len;
+	void *in, *out;
+	char info[4096];
+
+	if (argc < 5)
+		format();
+	pkey_parse_info(argv + 4, info);
+
+	key = get_key_id(argv[1]);
+	if (strcmp(argv[2], "0") != 0) {
+		fprintf(stderr, "Password passing is not yet supported\n");
+		exit(2);
+	}
+	in = read_file(argv[3], &in_len);
+
+	if (keyctl_pkey_query(key, info, &result) < 0)
+		error("keyctl_pkey_query");
+
+	out = malloc(result.max_enc_size);
+	if (!out)
+		error("malloc");
+
+	out_len = keyctl_pkey_decrypt(key, info,
+				      in, in_len, out, result.max_enc_size);
+	if (out_len < 0)
+		error("keyctl_pkey_decrypt");
+
+	if (fwrite(out, out_len, 1, stdout) != 1)
+		error("stdout");
+	exit(0);
+}
+
+/*
+ * Create a signature
+ */
+static void act_keyctl_pkey_sign(int argc, char *argv[])
+{
+	struct keyctl_pkey_query result;
+	key_serial_t key;
+	size_t in_len;
+	long out_len;
+	void *in, *out;
+	char info[4096];
+
+	if (argc < 5)
+		format();
+	pkey_parse_info(argv + 4, info);
+
+	key = get_key_id(argv[1]);
+	if (strcmp(argv[2], "0") != 0) {
+		fprintf(stderr, "Password passing is not yet supported\n");
+		exit(2);
+	}
+	in = read_file(argv[3], &in_len);
+
+	if (keyctl_pkey_query(key, info, &result) < 0)
+		error("keyctl_pkey_query");
+
+	out = malloc(result.max_sig_size);
+	if (!out)
+		error("malloc");
+
+	out_len = keyctl_pkey_sign(key, info,
+				   in, in_len, out, result.max_sig_size);
+	if (out_len < 0)
+		error("keyctl_pkey_sign");
+
+	if (fwrite(out, out_len, 1, stdout) != 1)
+		error("stdout");
+	exit(0);
+}
+
+/*
+ * Verify a signature.
+ */
+static void act_keyctl_pkey_verify(int argc, char *argv[])
+{
+	key_serial_t key;
+	size_t data_len, sig_len;
+	void *data, *sig;
+	char info[4096];
+
+	if (argc < 5)
+		format();
+	pkey_parse_info(argv + 5, info);
+
+	key = get_key_id(argv[1]);
+	if (strcmp(argv[2], "0") != 0) {
+		fprintf(stderr, "Password passing is not yet supported\n");
+		exit(2);
+	}
+	data = read_file(argv[3], &data_len);
+	sig = read_file(argv[4], &sig_len);
+
+	if (keyctl_pkey_verify(key, info,
+			       data, data_len, sig, sig_len) < 0)
+		error("keyctl_pkey_verify");
+	exit(0);
+}
+
 /*****************************************************************************/
 /*
  * parse a key identifier
@@ -1908,6 +2134,39 @@ incorrect_key_by_name_spec:
 	exit(2);
 
 } /* end get_key_id() */
+
+/*
+ * Read the contents of a file into a buffer and return it.
+ */
+static void *read_file(const char *name, size_t *_size)
+{
+	struct stat st;
+	ssize_t r;
+	void *p;
+	int fd;
+
+	fd = open(name, O_RDONLY);
+	if (fd < 0)
+		error(name);
+	if (fstat(fd, &st) < 0)
+		error(name);
+
+	p = malloc(st.st_size);
+	if (!p)
+		error("malloc");
+	r = read(fd, p, st.st_size);
+	if (r == -1)
+		error(name);
+	if (r != st.st_size) {
+		fprintf(stderr, "%s: Short read\n", name);
+		exit(1);
+	}
+	if (close(fd) < 0)
+		error(name);
+
+	*_size = st.st_size;
+	return p;
+}
 
 /*****************************************************************************/
 /*
