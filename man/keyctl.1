@@ -98,6 +98,16 @@ keyctl \- key management facility control
 \fBkeyctl\fR dh_compute_kdf <private> <prime> <base> <output_length> <hash_type>
 .br
 \fBkeyctl\fR dh_compute_kdf_oi <private> <prime> <base> <output_length> <hash_type>
+.br
+\fBkeyctl\fR pkey_query <key> <pass> [k=v]*
+.br
+\fBkeyctl\fR pkey_encrypt <key> <pass> <datafile> [k=v]* ><encfile>
+.br
+\fBkeyctl\fR pkey_decrypt <key> <pass> <encfile> [k=v]* ><datafile>
+.br
+\fBkeyctl\fR pkey_sign <key> <pass> <datafile> [k=v]* ><sigfile>
+.br
+\fBkeyctl\fR pkey_decrypt <key> <pass> <datafile> <sigfile> [k=v]*
 .SH DESCRIPTION
 This program is used to control the key management facility in various ways
 using a variety of subcommands.
@@ -746,6 +756,59 @@ operation. This command allows the caller to provide the other input data
 (OI data) compliant to SP800-56A via stdin.
 .fi
 .RE
+.SS Perform public-key operations with an asymmetric key
+\fBkeyctl\fR pkey_query <key> <pass> [k=v]*
+.br
+\fBkeyctl\fR pkey_encrypt <key> <pass> <datafile> [k=v]* > <encfile>
+.br
+\fBkeyctl\fR pkey_decrypt <key> <pass> <encfile> [k=v]* > <datafile>
+.br
+\fBkeyctl\fR pkey_sign <key> <pass> <datafile> [k=v]* > <sigfile>
+.br
+\fBkeyctl\fR pkey_verify <key> <pass> <datafile> <sigfile> [k=v]*
+.PP
+These commands query an asymmetric key, encrypt data with it, decrypt the
+encrypted data, generate a signature over some data and verify that signature.
+For encrypt, decrypt and sign, the resulting data is written to stdout; verify
+reads the data and the signature files and compares them.
+.PP
+[\fB!\fP] NOTE that the data is of very limited capacity, with no more bits
+than the size of the key.  For signatures, the caller is expected to digest
+the actual data and pass in the result of the digest as the datafile.  The
+name of the digest should be specified on the end of the command line as
+"hash=<name>".
+.PP
+The
+.I key
+ID indicates the key to use;
+.I pass
+is a placeholder for future password provision and should be "0" for the
+moment;
+.I datafile
+is the unencrypted data to be encrypted, signed or to have its signature
+checked;
+.I encfile
+is a file containing encrypted data; and
+.I sigfile
+is a file containing a signature.
+.PP
+A list of parameters in "key[=val]" form can be included on the end of the
+command line.  These specify things like the digest algorithm used
+("hash=<name>") or the encoding form ("enc=<type>").
+.PP
+.RS
+.nf
+k=`keyctl padd asymmetric "" @s <key.pkcs8.der`
+keyctl pkey_query $k 0 enc=pkcs1 hash=sha256
+keyctl pkey_encrypt $k 0 foo.hash enc=pkcs1 >foo.enc
+keyctl pkey_decrypt $k 0 foo.enc enc=pkcs1 >foo.hash
+keyctl pkey_sign $k 0 foo.hash enc=pkcs1 hash=sha256 >foo.sig
+keyctl pkey_verify $k 0 foo.hash foo.sig enc=pkcs1 hash=sha256
+.fi
+.RE
+.PP
+See asymmetric-key(7) for more information.
+
 .SH ERRORS
 There are a number of common errors returned by this program:
 
