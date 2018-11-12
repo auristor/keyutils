@@ -19,6 +19,7 @@ MAN8		:= $(MANDIR)/man8
 INCLUDEDIR	:= /usr/include
 LN		:= ln
 LNS		:= $(LN) -sf
+PREFIX 		:= /usr
 
 ###############################################################################
 #
@@ -77,6 +78,9 @@ USRLIBDIR	:= /usr/lib64
 endif
 endif
 endif
+
+PKGCONFIG 	:= libkeyutils.pc
+PKGCONFIG_DIR 	:= pkgconfig
 
 ###############################################################################
 #
@@ -163,6 +167,15 @@ dns.afsdb.o: dns.afsdb.c key.dns.h
 # Install everything
 #
 ###############################################################################
+pkgconfig:
+	sed \
+	-e 's,@VERSION\@,$(VERSION),g' \
+	-e 's,@prefix\@,$(PREFIX),g' \
+	-e 's,@exec_prefix\@,$(PREFIX),g' \
+	-e 's,@libdir\@,$(USRLIBDIR),g' \
+	-e 's,@includedir\@,$(INCLUDEDIR),g' \
+	< $(PKGCONFIG).in > $(PKGCONFIG) || rm $(PKGCONFIG)
+
 install: all
 ifeq ($(NO_ARLIB),0)
 	$(INSTALL) -D -m 0644 $(ARLIB) $(DESTDIR)$(USRLIBDIR)/$(ARLIB)
@@ -172,6 +185,15 @@ ifeq ($(NO_SOLIB),0)
 	$(LNS) $(LIBNAME) $(DESTDIR)$(LIBDIR)/$(SONAME)
 	mkdir -p $(DESTDIR)$(USRLIBDIR)
 	$(LNS) $(LIBDIR)/$(SONAME) $(DESTDIR)$(USRLIBDIR)/$(DEVELLIB)
+	sed \
+	-e 's,@VERSION\@,$(VERSION),g' \
+	-e 's,@prefix\@,$(PREFIX),g' \
+	-e 's,@exec_prefix\@,$(PREFIX),g' \
+	-e 's,@libdir\@,$(USRLIBDIR),g' \
+	-e 's,@includedir\@,$(INCLUDEDIR),g' \
+	< $(PKGCONFIG).in > $(PKGCONFIG) || rm $(PKGCONFIG)
+	$(INSTALL) -D $(PKGCONFIG) $(DESTDIR)$(LIBDIR)/$(PKGCONFIG_DIR)/$(PKGCONFIG)
+	rm $(PKGCONFIG)
 endif
 	$(INSTALL) -D keyctl $(DESTDIR)$(BINDIR)/keyctl
 	$(INSTALL) -D request-key $(DESTDIR)$(SBINDIR)/request-key
@@ -217,7 +239,7 @@ test:
 ###############################################################################
 clean:
 	$(MAKE) -C tests clean
-	$(RM) libkeyutils*
+	$(RM) libkeyutils.so* libkeyutils.a
 	$(RM) keyctl request-key key.dns_resolver
 	$(RM) *.o *.os *~
 	$(RM) debugfiles.list debugsources.list

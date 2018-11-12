@@ -96,6 +96,7 @@ make \
 %{_libdir}/libkeyutils.so
 %{_includedir}/*
 %{_mandir}/man3/*
+%{_libdir}/pkgconfig/libkeyutils.pc
 
 %changelog
 * Wed May 9 2018 David Howells <dhowells@redhat.com> - 1.5.11-1
