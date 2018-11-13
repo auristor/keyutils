@@ -1,8 +1,8 @@
 %define vermajor 1
-%define verminor 5.11
+%define verminor 6
 %define version %{vermajor}.%{verminor}
 %define libapivermajor 1
-%define libapiversion %{libapivermajor}.7
+%define libapiversion %{libapivermajor}.8
 
 # % define buildid .local
 
@@ -99,6 +99,17 @@ make \
 %{_libdir}/pkgconfig/libkeyutils.pc
 
 %changelog
+* Tue Nov 13 2018 David Howells <dhowells@redhat.com> - 1.6-1
+- Apply various specfile cleanups from Fedora.
+- request-key: Provide a command line option to suppress helper execution.
+- request-key: Find least-wildcard match rather than first match.
+- Remove the dependency on MIT Kerberos.
+- Fix some error messages
+- keyctl_dh_compute.3: Suggest /proc/crypto for list of available hashes.
+- Fix doc and comment typos.
+- Add public key ops for encrypt, decrypt, sign and verify (needs linux-4.20).
+- Add pkg-config support for finding libkeyutils.
+
 * Wed May 9 2018 David Howells <dhowells@redhat.com> - 1.5.11-1
 - Add keyring restriction support.
 - Add KDF support to the Diffie-Helman function.

@@ -81,3 +81,13 @@ KEYUTILS_1.7 {
 	keyctl_dh_compute_kdf_alloc;
 
 } KEYUTILS_1.6;
+
+KEYUTILS_1.8 {
+	/* Public key cryptography functions */
+	keyctl_pkey_query;
+	keyctl_pkey_encrypt;
+	keyctl_pkey_decrypt;
+	keyctl_pkey_sign;
+	keyctl_pkey_verify;
+
+} KEYUTILS_1.7;
