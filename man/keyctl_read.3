@@ -33,8 +33,8 @@ permission on a key to be able to read it.
 and
 .I buflen
 specify the buffer into which the payload data will be placed.  If the buffer
-is too small, the full size of the payload will be returned and no copy will
-take place.
+is too small, then the full size of the payload will be returned, and the
+contents of the buffer may be overwritten in some undefined way.
 .P
 .BR keyctl_read_alloc ()
 is similar to
@@ -62,8 +62,8 @@ though the byte-ordering is as appropriate for the kernel.
 On success
 .BR keyctl_read ()
 returns the amount of data placed into the buffer.  If the buffer was too
-small, then the size of buffer required will be returned, but no data will be
-transferred.
+small, then the size of buffer required will be returned, and the contents of
+the buffer may have been overwritten in some undefined way.
 .P
 On success
 .BR keyctl_read_alloc ()
