@@ -2231,29 +2231,17 @@ static int dump_key_tree_aux(key_serial_t key, int depth, int more, int hex_key_
 	/* if it's a keyring then we're going to want to recursively
 	 * display it if we can */
 	if (strcmp(type, "keyring") == 0) {
-		/* find out how big the keyring is */
-		ret = keyctl_read(key, NULL, 0);
-		if (ret < 0)
-			error("keyctl_read");
-		if (ret == 0)
-			return 0;
-		ringlen = ret;
-
 		/* read its contents */
-		payload = malloc(ringlen);
-		if (!payload)
-			error("malloc");
-
-		ret = keyctl_read(key, payload, ringlen);
+		ret = keyctl_read_alloc(key, &payload);
 		if (ret < 0)
-			error("keyctl_read");
+			error("keyctl_read_alloc");
 
-		ringlen = ret < ringlen ? ret : ringlen;
+		ringlen = ret;
 		kcount = ringlen / sizeof(key_serial_t);
 
 		/* walk the keyring */
 		pk = payload;
-		do {
+		while (ringlen >= sizeof(key_serial_t)) {
 			key = *pk++;
 
 			/* recurse into next keyrings */
@@ -2281,7 +2269,8 @@ static int dump_key_tree_aux(key_serial_t key, int depth, int more, int hex_key_
 							    hex_key_IDs);
 			}
 
-		} while (ringlen -= 4, ringlen >= sizeof(key_serial_t));
+			ringlen -= sizeof(key_serial_t);
+		}
 
 		free(payload);
 	}
